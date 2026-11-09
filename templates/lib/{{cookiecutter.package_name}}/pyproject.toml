@@ -1,0 +1,49 @@
+[project]
+name = {{ cookiecutter.package_name | tojson }}
+version = {{ cookiecutter.version | tojson }}
+description = {{ cookiecutter.description | tojson }}
+authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = []
+
+
+[build-system]
+requires = ["setuptools>=84.2.1", "wheel"]
+build-backend = "setuptools.build_meta"
+# End of build dependencies.
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Load shared workspace hooks while retaining this member's pytest configuration.
+addopts = [
+    "--confcutdir=../..",
+    "--import-mode=importlib",
+    "--cov",
+    "--cov-report=term-missing",
+    "--cov-report=html:../../reports/libs/{{cookiecutter.package_name}}/coverage",
+    "--cov-report=xml:../../reports/libs/{{cookiecutter.package_name}}/coverage.xml",
+    "--cov-report=json:../../reports/libs/{{cookiecutter.package_name}}/coverage.json",
+    "--junitxml=../../reports/libs/{{cookiecutter.package_name}}/junit.xml",
+    "--alluredir=../../reports/libs/{{cookiecutter.package_name}}/allure-results",
+    "--clean-alluredir",
+    "--video=retain-on-failure",
+    "--output=../../reports/libs/{{cookiecutter.package_name}}/playwright",
+]
+
+[tool.coverage.run]
+source = ["src"]
+data_file = "../../reports/libs/{{cookiecutter.package_name}}/.coverage"
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+include_namespace_packages = true
+show_missing = true

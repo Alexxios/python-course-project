@@ -1,0 +1,6 @@
+{
+  "package_name": "new_service",
+  "kubernetes_name": "{{ cookiecutter.package_name.replace('_', '-') }}",
+  "description": "A workspace service",
+  "version": "0.1.0"
+}

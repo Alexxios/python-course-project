@@ -1,0 +1,24 @@
+{% macro badges(path) -%}
+[![lint](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/{{ path }}/badges/lint.json)](https://alexxios.github.io/python-course-project/reports/{{ path }}/)
+[![tests](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/{{ path }}/badges/tests.json)](https://alexxios.github.io/python-course-project/reports/{{ path }}/)
+[![coverage](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/{{ path }}/badges/coverage.json)](https://alexxios.github.io/python-course-project/reports/{{ path }}/)
+{%- endmacro %}
+# Python Course Project
+
+{{ project.description }}
+
+## Services
+
+| Service | Badges |
+| --- | --- |
+{% for member in services %}
+| [{{ member.name }}]({{ member.path }}/) | {{ badges(member.path) | replace("\n", " ") }} |
+{% endfor %}
+
+## Libraries
+
+| Library | Badges |
+| --- | --- |
+{% for member in libs %}
+| [{{ member.name }}]({{ member.path }}/) | {{ badges(member.path) | replace("\n", " ") }} |
+{% endfor %}

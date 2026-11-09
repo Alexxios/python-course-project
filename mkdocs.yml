@@ -1,0 +1,20 @@
+site_name: "Python Course Project"
+site_description: "A Python course project with a FastAPI application."
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Developer quickstart: quickstart.md
+  - Development tools: tools.md
+  - CI reports: ci-reports.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+
+plugins:
+  - search

@@ -1,0 +1,49 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "Application service for the Python course project."
+authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = ["fastapi", "uvicorn"]
+
+
+[build-system]
+requires = ["setuptools>=84.2.1", "wheel"]
+build-backend = "setuptools.build_meta"
+# End of build dependencies.
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Load shared workspace hooks while retaining this member's pytest configuration.
+addopts = [
+    "--confcutdir=../..",
+    "--import-mode=importlib",
+    "--cov",
+    "--cov-report=term-missing",
+    "--cov-report=html:../../reports/services/app/coverage",
+    "--cov-report=xml:../../reports/services/app/coverage.xml",
+    "--cov-report=json:../../reports/services/app/coverage.json",
+    "--junitxml=../../reports/services/app/junit.xml",
+    "--alluredir=../../reports/services/app/allure-results",
+    "--clean-alluredir",
+    "--video=retain-on-failure",
+    "--output=../../reports/services/app/playwright",
+]
+
+[tool.coverage.run]
+source = ["src"]
+data_file = "../../reports/services/app/.coverage"
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+include_namespace_packages = true
+show_missing = true

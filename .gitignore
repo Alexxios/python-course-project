@@ -1,0 +1,54 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+.venvs/
+.allure-history/
+venv/
+env/
+node_modules/
+
+# Pants caches
+.pants.d/
+.pids/
+
+# Test / coverage
+.pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.allure/
+allure-results/
+allure-report/
+reports/
+!templates/reports/
+!templates/reports/**
+prof/
+
+# Tox
+.tox/
+
+# MkDocs
+site/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
