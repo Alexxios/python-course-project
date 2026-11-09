@@ -14,6 +14,14 @@ A Python course project with a FastAPI application.
 | Library | Badges |
 | --- | --- |
 
+## Subscriber appeals
+
+The service implements all three homework 4 tasks. `POST /appeals` validates
+subscriber details, one or more problem reasons, and the detection time with
+Pydantic, then saves each accepted appeal as a separate JSON file.
+See the [Subscriber appeals API guide](docs/appeals.md) for a runnable example,
+validation rules, storage configuration, and tests. No database is required.
+
 ## Development
 
 This project contains one FastAPI service, `app`, in `services/app/`.
@@ -66,10 +74,13 @@ Each member's pytest configuration uses `testpaths = ["tests"]` and coverage of
 its own `src/`. Root pytest configuration covers integration tests only. These
 files stay editable; creating a member does not regenerate them.
 
-Shared tooling uses root dependency groups. Add runtime dependencies with
-`uv add --package <name> <dependency>`; supply a local path for workspace
-relationships. Only declared dependencies are installed for member tests.
-The integration environment installs all members. Commit the shared `uv.lock`.
+Manage runtime versions in the root `pyproject.toml`, where Dependabot maintains
+them. Run `uv add <dependency>` from the repository root, then list the dependency
+name and required extras without a version bound in each member that uses it.
+Members retain these declarations so isolated tests and container builds install
+their runtime requirements. The shared `uv.lock` resolves versions across the
+whole workspace. Shared tooling uses root dependency groups, and the integration
+environment installs all members. Commit manifest changes and `uv.lock` together.
 `just format`, `just docs`, `just serve`, and `just reports` are also available.
 See [Development tools](docs/tools.md) for the testing tools, their purposes,
 and setup requirements.

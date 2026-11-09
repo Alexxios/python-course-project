@@ -7,7 +7,9 @@
 {{cookiecutter.description}}
 
 Run `just check services/{{cookiecutter.package_name}}` from the workspace root.
-Add dependencies with `uv add --package {{cookiecutter.package_name}} <dependency>`.
+Manage runtime versions with `uv add <dependency>` from the repository root.
+List dependency names and required extras without version bounds in this
+service's `pyproject.toml`; the root manifest and shared lockfile control versions.
 
 ## Structure
 
@@ -41,7 +43,8 @@ The Dockerfile starts it with:
 uv run --no-sync uvicorn {{cookiecutter.package_name}}.main:app --host 0.0.0.0 --port 80
 ```
 
-FastAPI and Uvicorn are declared as service dependencies. The image installs
+FastAPI and Uvicorn versions are managed in the root `pyproject.toml`; this service
+declares their names without version bounds. The image installs
 them from the workspace lockfile at build time; `--no-sync` reuses that environment
 at startup. For local development, run from the workspace root:
 

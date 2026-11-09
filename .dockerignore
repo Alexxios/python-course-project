@@ -13,3 +13,5 @@ site
 .env
 .env.*
 !.env.example
+assignments
+**/data/appeals

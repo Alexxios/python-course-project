@@ -7,4 +7,6 @@
 {{cookiecutter.description}}
 
 Run `just check libs/{{cookiecutter.package_name}}` from the workspace root.
-Add dependencies with `uv add --package {{cookiecutter.package_name}} <dependency>`.
+Manage runtime versions with `uv add <dependency>` from the repository root.
+List dependency names and required extras without version bounds in this
+library's `pyproject.toml`; the root manifest and shared lockfile control versions.
