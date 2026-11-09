@@ -4,7 +4,11 @@
 [![tests](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/services/app/badges/tests.json)](https://alexxios.github.io/python-course-project/reports/services/app/)
 [![coverage](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/services/app/badges/coverage.json)](https://alexxios.github.io/python-course-project/reports/services/app/)
 
-Application service for the Python course project.
+Subscriber appeals service for the Python course project. All three homework 4
+tasks are implemented by `POST /appeals`: Pydantic validation of subscriber
+details, multiple problem reasons and detection time, and JSON file persistence.
+See the [API guide](../../docs/appeals.md) for request examples, validation rules,
+storage configuration, and test coverage.
 
 Run `just check services/app` from the workspace root.
 Add dependencies with `uv add --package app <dependency>`.
@@ -15,9 +19,12 @@ Add dependencies with `uv add --package app <dependency>`.
 src/app/
 ├── __init__.py
 ├── main.py              # Application factory, lifespan, and ASGI app
+├── models.py            # Pydantic request/response models and reason enum
+├── storage.py           # Atomic JSON file persistence
 ├── py.typed
 └── routers/
     ├── __init__.py
+    ├── appeals.py       # POST /appeals
     └── health.py        # Liveness and readiness routes
 ```
 
@@ -41,13 +48,19 @@ The Dockerfile starts it with:
 uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port 80
 ```
 
-FastAPI and Uvicorn are declared as service dependencies. The image installs
+FastAPI, Pydantic with email validation, and Uvicorn are declared as service dependencies. The image installs
 them from the workspace lockfile at build time; `--no-sync` reuses that environment
 at startup. For local development, run from the workspace root:
 
 ```bash
 uv run --package app uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+`APPEALS_DATA_DIR` defaults to `data/appeals` relative to the server's working
+directory. Each accepted appeal is stored as `<uuid>.json`; the same object is
+returned with status 201. Invalid input returns 422; a storage failure returns
+503. Set `APPEALS_DATA_DIR` to a writable persistent volume for container
+deployments. The supplied Kubernetes manifest does not provision one.
 
 ## Health checks
 

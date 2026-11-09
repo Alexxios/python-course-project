@@ -105,13 +105,17 @@ and `tests/`. It includes a Dockerfile, a FastAPI `app`, and `k8s/` defaults for
 Kubernetes. FastAPI and Uvicorn are already declared in its dependencies.
 The `libs/` directory is empty and available for future shared code.
 
+The service already implements the [Subscriber appeals API](appeals.md), including
+all three homework tasks, JSON storage, and tests. That API can run without the
+infrastructure in step 3.
+
 Declare runtime dependencies on the member that imports them, even when they also
 appear in the root manifest. Member tests and container builds install that
 member's declared dependencies. Shared dev tools come from the root `dev` group.
 See [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/) for
 the shared lockfile and member dependency model.
 
-## 5. Implement and run the API
+## 5. Run the API
 
 The service separates application assembly from route groups:
 
@@ -124,9 +128,12 @@ services/app/
 └── src/app/
     ├── __init__.py
     ├── main.py
+    ├── models.py
+    ├── storage.py
     ├── py.typed
     └── routers/
         ├── __init__.py
+        ├── appeals.py
         └── health.py
 ```
 
@@ -184,7 +191,8 @@ deploying; the local Compose databases are separate from the cluster.
 
 ## 6. Add a test and run checks
 
-Create `services/app/tests/test_health.py`:
+The service includes API, persistence, validation, and health tests in
+`services/app/tests/`. A minimal health test looks like this:
 
 ```python
 from fastapi.testclient import TestClient

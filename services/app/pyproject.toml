@@ -6,7 +6,11 @@ authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
-dependencies = ["fastapi", "uvicorn"]
+dependencies = [
+    "fastapi",
+    "pydantic[email]>=2.14.2",
+    "uvicorn",
+]
 
 
 [build-system]

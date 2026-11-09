@@ -52,3 +52,7 @@ site/
 .env
 .env.*
 !.env.example
+
+# Local assignment materials and submitted appeals
+/assignments/
+**/data/appeals/

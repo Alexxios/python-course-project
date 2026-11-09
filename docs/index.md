@@ -2,6 +2,11 @@
 
 A Python course project with a FastAPI application.
 
+The [Subscriber appeals API](appeals.md) implements all three homework 4 tasks:
+validated subscriber details, problem detection time, multiple reasons, and JSON
+file persistence. The guide includes a working request, validation rules, storage
+configuration, and test commands.
+
 Start with the [Developer quickstart](quickstart.md) to set up the workspace,
 run a FastAPI service, and check your first change.
 

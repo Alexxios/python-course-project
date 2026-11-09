@@ -14,6 +14,14 @@ A Python course project with a FastAPI application.
 | Library | Badges |
 | --- | --- |
 
+## Subscriber appeals
+
+The service implements all three homework 4 tasks. `POST /appeals` validates
+subscriber details, one or more problem reasons, and the detection time with
+Pydantic, then saves each accepted appeal as a separate JSON file.
+See the [Subscriber appeals API guide](docs/appeals.md) for a runnable example,
+validation rules, storage configuration, and tests. No database is required.
+
 ## Development
 
 This project contains one FastAPI service, `app`, in `services/app/`.
