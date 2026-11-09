@@ -15,7 +15,10 @@ LOGGER = logging.getLogger(__name__)
     "",
     status_code=status.HTTP_201_CREATED,
     response_model=StoredAppeal,
-    responses={503: {"description": "The appeal could not be saved"}},
+    responses={
+        400: {"description": "The request body could not be decoded"},
+        503: {"description": "The appeal could not be saved"},
+    },
 )
 def create_appeal(appeal: AppealCreate, request: Request) -> StoredAppeal:
     """Save subscriber details, selected reasons, and the problem detection time."""

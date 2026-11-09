@@ -90,7 +90,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi" },
-    { name = "pydantic", extras = ["email"], specifier = ">=2.14.2" },
+    { name = "pydantic", extras = ["email"] },
     { name = "uvicorn" },
 ]
 
@@ -1526,11 +1526,12 @@ dependencies = [
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "opentelemetry-sdk" },
     { name = "prometheus-client" },
-    { name = "pydantic" },
+    { name = "pydantic", extra = ["email"] },
     { name = "pydantic-settings" },
     { name = "sentry-sdk" },
     { name = "sqlalchemy" },
     { name = "structlog" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -1568,11 +1569,12 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-sqlalchemy", specifier = ">=0.66b2" },
     { name = "opentelemetry-sdk", specifier = ">=1.45.2" },
     { name = "prometheus-client", specifier = ">=0.26.0" },
-    { name = "pydantic", specifier = ">=2.14.2" },
+    { name = "pydantic", extras = ["email"], specifier = ">=2.14.2" },
     { name = "pydantic-settings", specifier = ">=2.16.2" },
     { name = "sentry-sdk", specifier = ">=2.73.0" },
     { name = "sqlalchemy", specifier = ">=2.1.6" },
     { name = "structlog", specifier = ">=26.1.0" },
+    { name = "uvicorn", specifier = ">=0.54.0" },
 ]
 
 [package.metadata.requires-dev]

@@ -109,9 +109,17 @@ The service already implements the [Subscriber appeals API](appeals.md), includi
 all three homework tasks, JSON storage, and tests. That API can run without the
 infrastructure in step 3.
 
-Declare runtime dependencies on the member that imports them, even when they also
-appear in the root manifest. Member tests and container builds install that
-member's declared dependencies. Shared dev tools come from the root `dev` group.
+Manage runtime versions in the root `pyproject.toml`: run `uv add <dependency>`
+from the repository root. In each consuming member, declare the dependency name
+and required extras without a version bound. For example, root declares
+`pydantic[email]>=2.14.2` and `app` declares `pydantic[email]`. The root also declares
+FastAPI and Uvicorn versions; tests and fuzzing tools live in its `dev` group.
+
+The root's version requirements participate in resolution of the shared lockfile.
+Member tests and container builds install the member's declared dependencies from
+that lockfile. A root declaration alone does not install a package in an isolated
+member environment. Dependabot's existing root uv configuration maintains these
+central requirements and the lockfile.
 See [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/) for
 the shared lockfile and member dependency model.
 

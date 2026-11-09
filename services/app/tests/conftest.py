@@ -1,7 +1,14 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
+from hypothesis import settings
 
 from app.main import create_app
+
+settings.register_profile("app", max_examples=50, deadline=None, print_blob=True)
+settings.register_profile("fuzz", parent=settings.get_profile("app"), max_examples=1000)
+settings.load_profile(os.getenv("HYPOTHESIS_PROFILE", "app"))
 
 
 @pytest.fixture

@@ -46,7 +46,8 @@ Applications in the same Compose stack use `postgres:5432` and `redis:6379`;
 host port overrides do not change these container ports. Adjust the credentials
 and database in connection URLs when changing `.env`.
 
-Declare the application's chosen database drivers in its member dependencies,
+Manage the application's chosen database driver versions in the root manifest
+and declare their unversioned names in its member dependencies,
 and configure connections and migrations in the application. PostgreSQL and Redis
 have health checks, so application services can wait for `service_healthy`, as in
 the example below.

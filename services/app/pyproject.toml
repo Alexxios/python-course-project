@@ -6,9 +6,10 @@ authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
+# Runtime versions are managed in the workspace root pyproject.toml.
 dependencies = [
     "fastapi",
-    "pydantic[email]>=2.14.2",
+    "pydantic[email]",
     "uvicorn",
 ]
 
@@ -26,6 +27,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["fuzz: generated API inputs and persistence properties"]
 # Load shared workspace hooks while retaining this member's pytest configuration.
 addopts = [
     "--confcutdir=../..",

@@ -213,7 +213,7 @@ def test_concurrent_submissions_do_not_overwrite_each_other(client, payload, dat
 def test_openapi_describes_validation_and_success(client):
     schema = client.get("/openapi.json").json()
     operation = schema["paths"]["/appeals"]["post"]
-    assert {"201", "422", "503"} <= operation["responses"].keys()
+    assert {"201", "400", "422", "503"} <= operation["responses"].keys()
     model = schema["components"]["schemas"]["AppealCreate"]
     assert set(model["required"]) == set(FIELDS)
     assert model["properties"]["reasons"]["minItems"] == 1

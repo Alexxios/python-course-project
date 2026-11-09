@@ -34,6 +34,12 @@ Hypothesis does not automatically satisfy every Pydantic constraint or custom
 validator. Use explicit strategies for valid model inputs and separate cases
 that check validation failures.
 
+The application already includes Hypothesis and Schemathesis fuzz tests in its
+normal member suite. See [Appeals API fuzzing](appeals.md#fuzzing) for the generated
+properties, temporary-storage isolation, larger test budgets, and seed-based
+reproduction commands. `HYPOTHESIS_PROFILE=fuzz just test services/app` runs the
+service tests with up to 1,000 examples per property.
+
 To fuzz a running local API that exposes `/openapi.json`:
 
 ```bash
@@ -46,7 +52,8 @@ implement and start the application before running this command.
 
 Testcontainers needs a running Docker daemon locally and in CI. Create and clean
 up containers in fixtures or context managers, and declare your application's
-chosen database driver in the member's dependencies. The PostgreSQL and Redis
+chosen database driver with a version in the root manifest and an unversioned
+name in the member's dependencies. The PostgreSQL and Redis
 extras are included in the shared dev group; they do not configure application
 connections or migrations.
 

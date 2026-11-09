@@ -6,7 +6,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
+from app.errors import validation_error_handler
 from app.routers.appeals import router as appeals_router
 from app.routers.health import router as health_router
 from app.storage import JsonAppealStore
@@ -26,6 +28,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 def create_app(*, data_dir: str | Path | None = None) -> FastAPI:
     """Build an application with its own configurable appeal store."""
     app = FastAPI(title="Subscriber Appeals API", lifespan=lifespan)
+    app.add_exception_handler(RequestValidationError, validation_error_handler)
     app.state.ready = False
     app.state.appeal_store = JsonAppealStore(
         Path(data_dir if data_dir is not None else os.getenv("APPEALS_DATA_DIR", "data/appeals"))

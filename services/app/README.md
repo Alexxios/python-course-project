@@ -11,7 +11,12 @@ See the [API guide](../../docs/appeals.md) for request examples, validation rule
 storage configuration, and test coverage.
 
 Run `just check services/app` from the workspace root.
-Add dependencies with `uv add --package app <dependency>`.
+This includes Hypothesis and Schemathesis fuzz tests. Use
+`HYPOTHESIS_PROFILE=fuzz just test services/app` for a larger generation budget;
+see [fuzzing commands and reproduction](../../docs/appeals.md#fuzzing).
+Manage runtime versions with `uv add <dependency>` from the repository root.
+List dependency names and required extras without version bounds in this
+service's `pyproject.toml`; the root manifest and shared lockfile control versions.
 
 ## Structure
 
@@ -19,6 +24,7 @@ Add dependencies with `uv add --package app <dependency>`.
 src/app/
 ├── __init__.py
 ├── main.py              # Application factory, lifespan, and ASGI app
+├── errors.py            # JSON-safe validation error responses
 ├── models.py            # Pydantic request/response models and reason enum
 ├── storage.py           # Atomic JSON file persistence
 ├── py.typed
@@ -48,8 +54,9 @@ The Dockerfile starts it with:
 uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port 80
 ```
 
-FastAPI, Pydantic with email validation, and Uvicorn are declared as service dependencies. The image installs
-them from the workspace lockfile at build time; `--no-sync` reuses that environment
+FastAPI, Pydantic with email validation, and Uvicorn have their version requirements
+in the root `pyproject.toml` and unversioned declarations in this service. The image
+installs them from the workspace lockfile at build time; `--no-sync` reuses that environment
 at startup. For local development, run from the workspace root:
 
 ```bash

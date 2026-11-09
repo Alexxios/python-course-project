@@ -81,9 +81,15 @@ Supported reasons are exactly:
 - `не приходят письма`
 
 Invalid requests return **422 Unprocessable Entity** with FastAPI's `detail`
-array identifying each invalid field. They do not create a file. For example,
+array identifying each invalid field through `loc`, `msg`, and `type`. Rejected
+input and validator context are omitted, so values such as non-finite numbers
+and unpaired Unicode surrogates cannot crash error serialization. Invalid
+requests do not create a file. For example,
 `"first_name": "семён"`, `"birth_date": "2025-02-29"`, an unknown reason, or
 `"reasons": []` is invalid.
+
+Undecodable request bodies, such as invalid byte encodings, return **400 Bad
+Request** before model validation. They also leave storage unchanged.
 
 The explicit phone and date formats above are implementation choices for the
 assignment. Pydantic handles validation in `src/app/models.py`; the route does
@@ -141,3 +147,52 @@ external services or running HTTP server are needed.
 `just check` additionally checks the generated README, documentation, shared
 tooling, and integration scope. Coverage and test reports are written under
 `reports/services/app/`.
+
+### Fuzzing
+
+`tests/test_fuzz.py` uses the existing Hypothesis and Schemathesis dependencies.
+It runs automatically in `just test services/app`, `just check`, and member CI.
+The default `app` profile generates up to 50 examples per property; the `fuzz`
+profile increases that budget to 1,000. Each example creates a fresh application
+and temporary storage directory, which are cleaned up afterward.
+
+The suite checks generated valid appeals, mutated fields, non-Cyrillic characters,
+arbitrary JSON shapes, malformed request bytes, and positive/negative requests
+generated from OpenAPI. It asserts that accepted appeals match the saved JSON
+and rejected requests leave no files. Schemathesis also checks response status,
+content type, and response schema. Custom Cyrillic and past-date rules are not
+fully expressible in OpenAPI, so schema-generated inputs may return 422; separate
+domain-valid strategies require 201 and verify the returned values.
+Negative schema generation can also produce raw bytes, for which 400 is a valid
+decoding error response.
+
+Run the full service suite with the larger generation budget from the repository
+root:
+
+```bash
+HYPOTHESIS_PROFILE=fuzz just test services/app
+```
+
+To run only fuzzing and print generation statistics, enter the service directory:
+
+```bash
+cd services/app
+uv run --package app --group dev python -m pytest -m fuzz --hypothesis-show-statistics
+```
+
+For a longer reproducible run from that directory:
+
+```bash
+uv run --package app --group dev python -m pytest -m fuzz \
+  --hypothesis-profile=fuzz --hypothesis-seed=20261109 --hypothesis-show-statistics
+```
+
+Use the same seed and dependency versions to repeat a run. Hypothesis shrinks
+failures, caches examples locally in the ignored `.hypothesis/` directory, and
+prints reproduction information for generated failures. Keep minimized failures
+as regression tests; `tests/test_errors.py` covers the unsafe Unicode and
+non-finite-number error responses found while adding this suite.
+
+See [Hypothesis settings](https://hypothesis.readthedocs.io/en/latest/tutorial/settings.html)
+and [Schemathesis strategies](https://schemathesis.readthedocs.io/en/stable/guides/hypothesis-strategies/)
+for extending the profiles and generators.
