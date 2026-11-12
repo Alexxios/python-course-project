@@ -1,15 +1,21 @@
 [project]
 name = "app"
 version = "0.1.0"
-description = "Application service for the Python course project."
+description = "Versioned learning platform API for the final Python course project."
 authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
 # Runtime versions are managed in the workspace root pyproject.toml.
 dependencies = [
+    "alembic",
     "fastapi",
-    "pydantic[email]",
+    "httpx",
+    "psycopg[binary]",
+    "pydantic",
+    "pydantic-settings",
+    "pwdlib[argon2]",
+    "sqlalchemy",
     "uvicorn",
 ]
 

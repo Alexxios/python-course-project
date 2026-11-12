@@ -1,5 +1,5 @@
 site_name: "Python Course Project"
-site_description: "A Python course project with a FastAPI application."
+site_description: "Учебная платформа: final Python project with an API under /v1."
 
 theme:
   name: material
@@ -9,7 +9,7 @@ theme:
 nav:
   - Home: index.md
   - Developer quickstart: quickstart.md
-  - Subscriber appeals API: appeals.md
+  - Learning platform API: platform.md
   - Development tools: tools.md
   - CI reports: ci-reports.md
 

@@ -1,7 +1,7 @@
 [project]
 name = "python-course-project"
 version = "0.1.0"
-description = "A Python course project with a FastAPI application."
+description = "Учебная платформа: a versioned FastAPI learning platform for the final Python project."
 authors = [{ name = "Ace of Cups", email = "aglotov@ithse.ru" }]
 readme = "README.md"
 requires-python = ">=3.14"
@@ -23,6 +23,10 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi>=0.66b2",
     "opentelemetry-instrumentation-sqlalchemy>=0.66b2",
     "opentelemetry-instrumentation-celery>=0.66b2",
+    "alembic>=1.20.1",
+    "pwdlib[argon2]>=0.3.1",
+    "psycopg[binary]>=3.3.9",
+    "httpx>=0.28.1",
 ]
 # End of shared runtime dependencies.
 

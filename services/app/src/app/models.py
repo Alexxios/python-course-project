@@ -1,82 +1,139 @@
-"""Validated subscriber appeals and their persisted representation."""
+"""Relational learning platform model; timestamps are UTC Unix seconds."""
 
-import re
-import unicodedata
-from datetime import UTC, date, datetime
-from enum import StrEnum
-from typing import Annotated
-from uuid import UUID, uuid4
+import time
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, EmailStr, Field, field_validator
+from sqlalchemy import JSON, CheckConstraint, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class AppealReason(StrEnum):
-    NO_NETWORK = "нет доступа к сети"
-    PHONE_NOT_WORKING = "не работает телефон"
-    EMAIL_NOT_RECEIVED = "не приходят письма"
+def now() -> int:
+    return int(time.time())
 
 
-class AppealCreate(BaseModel):
-    """One subscriber and one or more reasons for contacting support."""
+class Base(DeclarativeBase):
+    pass
 
-    model_config = ConfigDict(extra="forbid")
 
-    last_name: Annotated[str, Field(min_length=1, description="Cyrillic, uppercase initial")]
-    first_name: Annotated[str, Field(min_length=1, description="Cyrillic, uppercase initial")]
-    birth_date: date = Field(description="YYYY-MM-DD, no later than today (UTC)")
-    phone: Annotated[
-        str,
-        Field(pattern=r"^\+[1-9][0-9]{7,14}$", description="+ followed by 8 to 15 digits"),
-    ]
-    email: EmailStr
-    reasons: Annotated[list[AppealReason], Field(min_length=1)]
-    detected_at: AwareDatetime = Field(
-        description="ISO 8601 date and time with a UTC offset; cannot be in the future"
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = (CheckConstraint("role IN ('student', 'admin')", name="ck_user_role"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True)
+    first_name: Mapped[str] = mapped_column(String(100))
+    last_name: Mapped[str] = mapped_column(String(100))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(20), default="student")
+    created_at: Mapped[int] = mapped_column(default=now)
+
+
+class AuthSession(Base):
+    __tablename__ = "auth_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    access_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    refresh_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    access_expires_at: Mapped[int]
+    refresh_expires_at: Mapped[int]
+
+
+class Course(Base):
+    __tablename__ = "courses"
+    __table_args__ = (CheckConstraint("passing_score BETWEEN 1 AND 100", name="ck_course_score"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text)
+    published: Mapped[bool] = mapped_column(default=False, index=True)
+    passing_score: Mapped[int] = mapped_column(default=70)
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[int] = mapped_column(default=now)
+
+
+class Lesson(Base):
+    __tablename__ = "lessons"
+    __table_args__ = (
+        UniqueConstraint("course_id", "position", name="uq_lesson_position"),
+        CheckConstraint("position > 0", name="ck_lesson_position"),
     )
 
-    @field_validator("last_name", "first_name")
-    @classmethod
-    def validate_name(cls, value: str) -> str:
-        if not value[0].isupper() or not all(
-            char.isalpha() and "CYRILLIC" in unicodedata.name(char, "") for char in value
-        ):
-            raise ValueError("Use only Cyrillic letters, starting with an uppercase letter")
-        return value
-
-    @field_validator("birth_date", mode="before")
-    @classmethod
-    def validate_birth_date_format(cls, value: object) -> object:
-        if type(value) is date:
-            return value
-        if not isinstance(value, str) or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value) is None:
-            raise ValueError("Use a date in YYYY-MM-DD format")
-        return value
-
-    @field_validator("birth_date")
-    @classmethod
-    def validate_birth_date(cls, value: date) -> date:
-        if value > datetime.now(UTC).date():
-            raise ValueError("Birth date cannot be in the future")
-        return value
-
-    @field_validator("detected_at", mode="before")
-    @classmethod
-    def validate_detection_format(cls, value: object) -> object:
-        if isinstance(value, datetime):
-            return value
-        if not isinstance(value, str) or "T" not in value:
-            raise ValueError("Use an ISO 8601 datetime with T and a UTC offset")
-        return value
-
-    @field_validator("detected_at")
-    @classmethod
-    def validate_detection_time(cls, value: datetime) -> datetime:
-        if value > datetime.now(UTC):
-            raise ValueError("Detection time cannot be in the future")
-        return value
+    id: Mapped[int] = mapped_column(primary_key=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text)
+    content: Mapped[str] = mapped_column(Text)
+    position: Mapped[int]
+    video_url: Mapped[str | None] = mapped_column(String(2048))
 
 
-class StoredAppeal(AppealCreate):
-    """An accepted appeal, identified by its JSON filename."""
+class Question(Base):
+    __tablename__ = "questions"
+    __table_args__ = (
+        UniqueConstraint("lesson_id", "position", name="uq_question_position"),
+        CheckConstraint("position > 0", name="ck_question_position"),
+        CheckConstraint("correct_option >= 0 AND correct_option < 6", name="ck_question_option"),
+    )
 
-    id: UUID = Field(default_factory=uuid4)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    lesson_id: Mapped[int] = mapped_column(ForeignKey("lessons.id", ondelete="CASCADE"), index=True)
+    prompt: Mapped[str] = mapped_column(Text)
+    options: Mapped[list[str]] = mapped_column(JSON)
+    correct_option: Mapped[int]
+    position: Mapped[int]
+
+
+class Enrollment(Base):
+    __tablename__ = "enrollments"
+    __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_enrollment"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id", ondelete="RESTRICT"), index=True
+    )
+    enrolled_at: Mapped[int] = mapped_column(default=now)
+
+
+class Completion(Base):
+    __tablename__ = "completions"
+    __table_args__ = (UniqueConstraint("enrollment_id", "lesson_id", name="uq_completion"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    enrollment_id: Mapped[int] = mapped_column(
+        ForeignKey("enrollments.id", ondelete="CASCADE"), index=True
+    )
+    lesson_id: Mapped[int] = mapped_column(ForeignKey("lessons.id", ondelete="CASCADE"))
+    completed_at: Mapped[int] = mapped_column(default=now)
+
+
+class Attempt(Base):
+    __tablename__ = "attempts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    enrollment_id: Mapped[int] = mapped_column(
+        ForeignKey("enrollments.id", ondelete="CASCADE"), index=True
+    )
+    lesson_id: Mapped[int] = mapped_column(
+        ForeignKey("lessons.id", ondelete="RESTRICT"), index=True
+    )
+    answers: Mapped[list[dict]] = mapped_column(JSON)
+    correct_count: Mapped[int]
+    question_count: Mapped[int]
+    score: Mapped[float]
+    passed: Mapped[bool]
+    created_at: Mapped[int] = mapped_column(default=now)
+
+
+class PracticeQuiz(Base):
+    __tablename__ = "practice_quizzes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), index=True)
+    source: Mapped[str] = mapped_column(String(20))
+    questions: Mapped[list[dict]] = mapped_column(JSON)
+    created_at: Mapped[int] = mapped_column(default=now)
+    submitted_at: Mapped[int | None]
+    score: Mapped[float | None]
+    answers: Mapped[list[dict] | None] = mapped_column(JSON)

@@ -1,6 +1,10 @@
 """Health endpoints used by Kubernetes probes."""
 
 from fastapi import APIRouter, HTTPException, Request
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.models import User
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -12,8 +16,12 @@ async def liveness() -> dict[str, str]:
 
 
 @router.get("/ready")
-async def readiness(request: Request) -> dict[str, str]:
+def readiness(request: Request) -> dict[str, str]:
     if not request.app.state.ready:
         raise HTTPException(status_code=503, detail="Service is not ready")
-    # Add bounded checks for dependencies required to serve traffic here.
+    try:
+        with request.app.state.sessions() as session:
+            session.execute(select(User.id).limit(1))
+    except SQLAlchemyError as exc:
+        raise HTTPException(503, "Database unavailable or schema not initialized") from exc
     return {"status": "ready"}
