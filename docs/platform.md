@@ -10,6 +10,11 @@ SQLite/PostgreSQL connections, health probes, and `/v1` documentation.
 Student registration and login, rotating access/refresh sessions, logout,
 password changes, current profile, and explicit administrator provisioning.
 
+## DEV-4
+
+Administrator CRUD for courses, ordered lessons, and questions; publication,
+public catalog search/pagination, and content freeze after enrollment.
+
 Interactive docs: `/v1/docs`; OpenAPI: `/v1/openapi.json`.
 
 Create an administrator after applying migrations:
