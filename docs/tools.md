@@ -34,16 +34,12 @@ Hypothesis does not automatically satisfy every Pydantic constraint or custom
 validator. Use explicit strategies for valid model inputs and separate cases
 that check validation failures.
 
-The application already includes Hypothesis and Schemathesis fuzz tests in its
-normal member suite. See [Appeals API fuzzing](appeals.md#fuzzing) for the generated
-properties, temporary-storage isolation, larger test budgets, and seed-based
-reproduction commands. `HYPOTHESIS_PROFILE=fuzz just test services/app` runs the
-service tests with up to 1,000 examples per property.
+See [Learning platform tests](platform.md#tests) for the test layout and database setup.
 
-To fuzz a running local API that exposes `/openapi.json`:
+To fuzz the running local API at `/v1/openapi.json`:
 
 ```bash
-uv run --group dev schemathesis run http://127.0.0.1:8000/openapi.json
+uv run --group dev schemathesis run http://127.0.0.1:8000/v1/openapi.json
 ```
 
 Use a disposable test application and database: generated requests can create,

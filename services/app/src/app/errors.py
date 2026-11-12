@@ -4,6 +4,22 @@ import json
 
 from fastapi import Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
+
+async def conflict_handler(_request: Request, _exc: IntegrityError) -> Response:
+    return JSONResponse(
+        status_code=409,
+        content={"detail": "Resource already exists or conflicts with related data"},
+    )
+
+
+async def database_error_handler(_request: Request, _exc: SQLAlchemyError) -> Response:
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Database unavailable; check configuration and migrations"},
+    )
 
 
 async def validation_error_handler(_request: Request, exc: RequestValidationError) -> Response:
