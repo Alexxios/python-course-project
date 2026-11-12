@@ -10,7 +10,7 @@ requires-python = ">=3.14"
 dependencies = [
     "fastapi>=0.162.0",
     "uvicorn>=0.54.0",
-    "sqlalchemy>=2.1.6",
+    "sqlalchemy[asyncio]>=2.1.6",
     "pydantic[email]>=2.14.2",
     "pydantic-settings>=2.16.2",
     "celery>=5.6.3",
@@ -27,6 +27,7 @@ dependencies = [
     "pwdlib[argon2]>=0.3.1",
     "psycopg[binary]>=3.3.9",
     "httpx>=0.28.1",
+    "aiosqlite>=0.22.1",
 ]
 # End of shared runtime dependencies.
 

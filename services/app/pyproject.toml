@@ -8,6 +8,7 @@ requires-python = ">=3.14"
 license = "MIT"
 # Runtime versions are managed in the workspace root pyproject.toml.
 dependencies = [
+    "aiosqlite",
     "alembic",
     "fastapi",
     "httpx",
@@ -15,7 +16,7 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "pwdlib[argon2]",
-    "sqlalchemy",
+    "sqlalchemy[asyncio]",
     "uvicorn",
 ]
 

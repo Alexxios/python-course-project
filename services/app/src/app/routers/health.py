@@ -16,12 +16,12 @@ async def liveness() -> dict[str, str]:
 
 
 @router.get("/ready")
-def readiness(request: Request) -> dict[str, str]:
+async def readiness(request: Request) -> dict[str, str]:
     if not request.app.state.ready:
         raise HTTPException(status_code=503, detail="Service is not ready")
     try:
-        with request.app.state.sessions() as session:
-            session.execute(select(User.id).limit(1))
+        async with request.app.state.sessions() as session:
+            await session.execute(select(User.id).limit(1))
     except SQLAlchemyError as exc:
         raise HTTPException(503, "Database unavailable or schema not initialized") from exc
     return {"status": "ready"}

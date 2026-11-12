@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.config import Settings
 from app.database import create_database
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
     finally:
         app.state.ready = False
-        app.state.engine.dispose()
+        await app.state.engine.dispose()
 
 
 def create_app(*, settings: Settings | None = None) -> FastAPI:
@@ -44,7 +44,7 @@ def create_app(*, settings: Settings | None = None) -> FastAPI:
     app.state.ready = False
     app.state.settings = settings
     app.state.engine = create_database(settings.database_url)
-    app.state.sessions = sessionmaker(app.state.engine, expire_on_commit=False)
+    app.state.sessions = async_sessionmaker(app.state.engine, expire_on_commit=False)
     app.include_router(v1_router)
     app.include_router(health_router)
     return app
