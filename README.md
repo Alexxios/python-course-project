@@ -14,6 +14,21 @@ A Python course project with a FastAPI application.
 | Library | Badges |
 | --- | --- |
 
+## Student grades (Assignment 6)
+
+The service stores the supplied student CSV with SQLAlchemy and Alembic. It
+implements transactional CSV import, INSERT/SELECT operations, students by
+faculty, unique courses, faculty averages, and students with a course grade
+below 30. Use the CLI or FastAPI endpoints with the existing uv/Just tooling.
+See the [Student grades guide](docs/students.md) for setup, examples, and tests.
+`ASSIGNMENT-4` preserves the earlier solution; `ASSIGNMENT-6` adds this assignment.
+
+```bash
+uv run --package app python -m app.students init-db
+uv run --package app python -m app.students import-csv services/app/examples/students.csv
+uv run --package app python -m app.students average --faculty ФПМИ
+```
+
 ## Subscriber appeals
 
 The service implements all three homework 4 tasks. `POST /appeals` validates

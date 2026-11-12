@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from hypothesis import settings
 
 from app.main import create_app
+from app.students.database import create_database, upgrade_database
+from app.students.repository import StudentRepository
 
 settings.register_profile("app", max_examples=50, deadline=None, print_blob=True)
 settings.register_profile("fuzz", parent=settings.get_profile("app"), max_examples=1000)
@@ -33,3 +35,39 @@ def data_dir(tmp_path):
 def client(data_dir):
     with TestClient(create_app(data_dir=data_dir)) as client:
         yield client
+
+
+@pytest.fixture
+def student_engine(tmp_path):
+    engine = create_database(f"sqlite:///{tmp_path / 'students.sqlite3'}")
+    upgrade_database(engine)
+    try:
+        yield engine
+    finally:
+        engine.dispose()
+
+
+@pytest.fixture
+def student_repository(student_engine):
+    return StudentRepository(student_engine)
+
+
+@pytest.fixture
+def student_client(tmp_path):
+    app = create_app(
+        data_dir=tmp_path / "appeals", database_url=f"sqlite:///{tmp_path / 'students.sqlite3'}"
+    )
+    upgrade_database(app.state.student_engine)
+    with TestClient(app) as client:
+        yield client
+
+
+@pytest.fixture
+def grade_payload():
+    return {
+        "last_name": "Ли",
+        "first_name": "Иван",
+        "faculty": "АВТФ",
+        "course": "Теор. Механика",
+        "grade": 29,
+    }

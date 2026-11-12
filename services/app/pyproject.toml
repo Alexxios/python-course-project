@@ -8,8 +8,10 @@ requires-python = ">=3.14"
 license = "MIT"
 # Runtime versions are managed in the workspace root pyproject.toml.
 dependencies = [
+    "alembic",
     "fastapi",
     "pydantic[email]",
+    "sqlalchemy",
     "uvicorn",
 ]
 

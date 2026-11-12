@@ -4,7 +4,23 @@
 [![tests](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/services/app/badges/tests.json)](https://alexxios.github.io/python-course-project/reports/services/app/)
 [![coverage](https://img.shields.io/endpoint?url=https%3A//alexxios.github.io/python-course-project/reports/services/app/badges/coverage.json)](https://alexxios.github.io/python-course-project/reports/services/app/)
 
-Subscriber appeals service for the Python course project. All three homework 4
+Student grades and subscriber appeals service for the Python course project.
+Assignment 6 adds SQLAlchemy storage, Alembic migrations, CSV import, and all
+required queries, including grades below 30. See the
+[Student grades guide](../../docs/students.md) for CLI and API examples.
+
+```bash
+uv run --package app python -m app.students init-db
+uv run --package app python -m app.students import-csv services/app/examples/students.csv
+uv run --package app python -m app.students average --faculty ФПМИ
+```
+
+Run these commands from the workspace root. Import appends all rows; import once
+per database. `STUDENTS_DATABASE_URL` defaults to `sqlite:///students.sqlite3`.
+Apply migrations before student API requests; the server does not create tables.
+Migrations are packaged with the service for installed and container use.
+
+All three homework 4
 tasks are implemented by `POST /appeals`: Pydantic validation of subscriber
 details, multiple problem reasons and detection time, and JSON file persistence.
 See the [API guide](../../docs/appeals.md) for request examples, validation rules,
@@ -27,10 +43,12 @@ src/app/
 ├── errors.py            # JSON-safe validation error responses
 ├── models.py            # Pydantic request/response models and reason enum
 ├── storage.py           # Atomic JSON file persistence
+├── students/            # SQLAlchemy model, queries, CSV import, CLI, migrations
 ├── py.typed
 └── routers/
     ├── __init__.py
     ├── appeals.py       # POST /appeals
+    ├── students.py      # Assignment 6 INSERT/SELECT and aggregate queries
     └── health.py        # Liveness and readiness routes
 ```
 

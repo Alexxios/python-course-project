@@ -105,9 +105,17 @@ and `tests/`. It includes a Dockerfile, a FastAPI `app`, and `k8s/` defaults for
 Kubernetes. FastAPI and Uvicorn are already declared in its dependencies.
 The `libs/` directory is empty and available for future shared code.
 
-The service already implements the [Subscriber appeals API](appeals.md), including
-all three homework tasks, JSON storage, and tests. That API can run without the
-infrastructure in step 3.
+The service implements the [Subscriber appeals API](appeals.md) for Assignment 4
+and the [Student grades API and CLI](students.md) for Assignment 6. Both can run
+without the infrastructure in step 3; student grades use SQLite by default.
+Before using student endpoints, initialize and populate their database:
+
+```bash
+uv run --package app python -m app.students init-db
+uv run --package app python -m app.students import-csv services/app/examples/students.csv
+```
+
+CSV import appends rows, so import the supplied file once per database.
 
 Manage runtime versions in the root `pyproject.toml`: run `uv add <dependency>`
 from the repository root. In each consuming member, declare the dependency name
@@ -138,10 +146,12 @@ services/app/
     ├── main.py
     ├── models.py
     ├── storage.py
+    ├── students/        # SQLAlchemy models, repository, CLI, and Alembic migrations
     ├── py.typed
     └── routers/
         ├── __init__.py
         ├── appeals.py
+        ├── students.py
         └── health.py
 ```
 

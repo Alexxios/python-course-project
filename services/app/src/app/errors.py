@@ -4,6 +4,17 @@ import json
 
 from fastapi import Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
+
+
+async def database_error_handler(_request: Request, _exc: SQLAlchemyError) -> Response:
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "The student database is unavailable; check configuration and migrations"
+        },
+    )
 
 
 async def validation_error_handler(_request: Request, exc: RequestValidationError) -> Response:

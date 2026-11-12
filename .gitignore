@@ -56,3 +56,4 @@ site/
 # Local assignment materials and submitted appeals
 /assignments/
 **/data/appeals/
+**/students.sqlite3*

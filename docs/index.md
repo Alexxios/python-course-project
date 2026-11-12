@@ -2,6 +2,11 @@
 
 A Python course project with a FastAPI application.
 
+The [Student grades guide](students.md) covers Assignment 6: SQLAlchemy models,
+Alembic migrations, CSV import, faculty and course queries, average grades,
+and the optional query for grades below 30. It includes CLI and HTTP examples
+using the same development tooling as Assignment 4.
+
 The [Subscriber appeals API](appeals.md) implements all three homework 4 tasks:
 validated subscriber details, problem detection time, multiple reasons, and JSON
 file persistence. The guide includes a working request, validation rules, storage

@@ -9,6 +9,7 @@ theme:
 nav:
   - Home: index.md
   - Developer quickstart: quickstart.md
+  - Student grades (Assignment 6): students.md
   - Subscriber appeals API: appeals.md
   - Development tools: tools.md
   - CI reports: ci-reports.md

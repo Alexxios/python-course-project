@@ -23,6 +23,7 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi>=0.66b2",
     "opentelemetry-instrumentation-sqlalchemy>=0.66b2",
     "opentelemetry-instrumentation-celery>=0.66b2",
+    "alembic>=1.20.1",
 ]
 # End of shared runtime dependencies.
 
