@@ -2,6 +2,9 @@
 
 from fastapi import APIRouter
 
+from app.routers.v1.auth import router as auth_router
+from app.routers.v1.learning import router as learning_router
+
 router = APIRouter(
     prefix="/v1",
     responses={
@@ -14,3 +17,8 @@ router = APIRouter(
         503: {"description": "Database or configured service unavailable"},
     },
 )
+for child_router in (
+    auth_router,
+    learning_router,
+):
+    router.include_router(child_router)
