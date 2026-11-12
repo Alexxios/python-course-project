@@ -166,6 +166,60 @@ class QuestionView(QuestionWrite):
     lesson_id: int
 
 
+class StudentQuestion(Schema):
+    id: int
+    prompt: str
+    options: list[str]
+
+
+class LessonContent(LessonView):
+    questions: list[StudentQuestion]
+    completed: bool
+
+
+class LessonOutline(Schema):
+    id: int
+    title: str
+    description: str
+    position: int
+    unlocked: bool
+    completed: bool
+
+
+class Progress(Schema):
+    course: CourseView
+    total_lessons: int
+    completed_lessons: int
+    progress_percent: float
+    next_lesson_id: int | None
+
+
+class Answer(Schema):
+    question_id: PositiveInt
+    option: Annotated[int, Field(strict=True, ge=0, le=5)]
+
+
+class Submission(Schema):
+    answers: Annotated[list[Answer], Field(min_length=1, max_length=100)]
+
+    @model_validator(mode="after")
+    def no_duplicates(self) -> Self:
+        if len({answer.question_id for answer in self.answers}) != len(self.answers):
+            raise ValueError("Each question may be answered only once")
+        return self
+
+
+class AttemptView(Schema):
+    id: int
+    lesson_id: int
+    answers: list[Answer]
+    correct_count: int
+    question_count: int
+    score: float
+    passed: bool
+    created_at: int
+
+
 class Page[T](Schema):
     items: list[T]
     total: int

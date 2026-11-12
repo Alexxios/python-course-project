@@ -96,3 +96,18 @@ def course_factory(client, admin_headers):
         return (course, lessons, question)
 
     return create
+
+
+@pytest.fixture
+async def learned_course(client, student_headers, course_factory):
+    course, lessons, question = await course_factory()
+    assert (
+        await client.post(f"/v1/courses/{course['id']}/enroll", headers=student_headers)
+    ).status_code == 201
+    response = await client.post(
+        f"/v1/lessons/{lessons[0]['id']}/attempts",
+        headers=student_headers,
+        json={"answers": [{"question_id": question["id"], "option": 0}]},
+    )
+    assert response.status_code == 201, response.text
+    return (course, lessons, question)
