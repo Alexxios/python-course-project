@@ -20,6 +20,11 @@ public catalog search/pagination, and content freeze after enrollment.
 Enrollment, sequential lesson access, completion, automatic test grading,
 progress, and private attempt history.
 
+## DEV-6
+
+Private practice quizzes based on completed lessons, local generation, and
+optional AI generation with provider response validation.
+
 Interactive docs: `/v1/docs`; OpenAPI: `/v1/openapi.json`.
 
 Create an administrator after applying migrations:
@@ -52,3 +57,6 @@ Tests use AnyIO's asyncio backend and HTTPX `AsyncClient`. The application,
 fixtures, requests, and pooled connections share a single event loop per test.
 Each request/task gets its own session. Blocking SQL and password regression
 tests verify that liveness remains responsive while those operations are pending.
+
+AI requests use HTTPX `AsyncClient`; a regression test checks liveness while
+a provider response is pending. No live provider calls are made in tests.

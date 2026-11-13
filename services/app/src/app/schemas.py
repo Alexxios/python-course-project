@@ -37,31 +37,23 @@ Text = Annotated[
     StringConstraints(strip_whitespace=True, min_length=1, max_length=200),
     AfterValidator(safe_text),
 ]
-
 Name = Annotated[
     str,
     StringConstraints(strip_whitespace=True, min_length=1, max_length=100),
     AfterValidator(safe_text),
 ]
-
 Description = Annotated[
     str, StringConstraints(strip_whitespace=True, max_length=5000), AfterValidator(safe_text)
 ]
-
 Content = Annotated[
     str,
     StringConstraints(strip_whitespace=True, min_length=1, max_length=50000),
     AfterValidator(safe_text),
 ]
-
 Username = Annotated[str, StringConstraints(to_lower=True, pattern=r"^[a-zA-Z0-9_]{3,50}$")]
-
 Password = Annotated[SecretStr, Field(min_length=12, max_length=128), AfterValidator(utf8_secret)]
-
 Credential = Annotated[SecretStr, Field(min_length=1, max_length=128), AfterValidator(utf8_secret)]
-
 PositiveInt = Annotated[int, Field(strict=True, ge=1, le=2147483647)]
-
 Search = Annotated[
     str, StringConstraints(strip_whitespace=True, max_length=200), AfterValidator(safe_text)
 ]
@@ -218,6 +210,25 @@ class AttemptView(Schema):
     score: float
     passed: bool
     created_at: int
+
+
+class PracticeRequest(Schema):
+    course_id: PositiveInt
+    question_count: Annotated[int, Field(strict=True, ge=1, le=10)] = 5
+
+
+class PracticeQuestion(StudentQuestion):
+    source_lesson_id: int
+
+
+class PracticeView(Schema):
+    id: int
+    course_id: int
+    source: Literal["local", "openai"]
+    questions: list[PracticeQuestion]
+    created_at: int
+    submitted_at: int | None
+    score: float | None
 
 
 class Page[T](Schema):
