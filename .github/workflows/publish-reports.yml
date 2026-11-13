@@ -10,8 +10,6 @@ on:
 permissions:
   actions: read
   contents: write
-  pull-requests: write
-  checks: write
 
 jobs:
   publish:
@@ -64,20 +62,3 @@ jobs:
           target-folder: ${{ inputs.pr-number != 0 && format('pr-preview/pr-{0}', inputs.pr-number) || '' }}
           clean-exclude: ${{ inputs.pr-number == 0 && 'pr-preview/' || '' }}
           force: false
-      - name: Collect Allure reports
-        if: ${{ inputs.pr-number != 0 }}
-        # Exclude the custom summary.json files produced by just reports.
-        run: |
-          while IFS= read -r -d '' report; do
-            relative="${report#incoming/}"
-            mkdir -p "allure-reports/$(dirname "$relative")"
-            mv "$report" "allure-reports/$relative"
-          done < <(find incoming -type d -name allure -prune -print0)
-      - name: Post Allure summary
-        if: ${{ inputs.pr-number != 0 }}
-        # 0.9 renders a separate row for every report, including empty scopes.
-        uses: allure-framework/allure-action@v0.9.0
-        with:
-          report-directory: allure-reports/
-          remote-href: https://alexxios.github.io/python-course-project/pr-preview/pr-${{ inputs.pr-number }}/
-          github-token: ${{ github.token }}

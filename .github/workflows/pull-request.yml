@@ -6,6 +6,12 @@ on:
 permissions:
   contents: read
 
+# Keep each PR's published reports and summary from different runs in order.
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  queue: max
+  cancel-in-progress: false
+
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
@@ -22,7 +28,51 @@ jobs:
     permissions:
       actions: read
       contents: write
-      pull-requests: write
-      checks: write
     with:
       pr-number: ${{ github.event.pull_request.number }}
+
+  summary:
+    needs: publish
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: check-reports
+          path: incoming/
+      - name: Collect Allure reports
+        # Exclude the custom summary.json files produced by just reports.
+        run: |
+          while IFS= read -r -d '' report; do
+            relative="${report#incoming/}"
+            mkdir -p "allure-reports/$(dirname "$relative")"
+            mv "$report" "allure-reports/$relative"
+          done < <(find incoming -type d -name allure -prune -print0)
+      - name: Deploy Pages and wait for success
+        # The publisher has released the shared Pages concurrency group.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          run_id=$(gh api --method POST "repos/$GH_REPO/actions/workflows/pages.yml/dispatches" \
+            --header 'X-GitHub-Api-Version: 2026-03-10' \
+            -f ref="$DEFAULT_BRANCH" --jq '.workflow_run_id')
+          if [[ ! "$run_id" =~ ^[1-9][0-9]*$ ]]; then
+            echo '::error::Pages dispatch did not return a valid workflow run ID'
+            exit 1
+          fi
+          gh run watch "$run_id" --exit-status --interval 5
+      - name: Post Allure summary
+        # 0.9 renders a separate row for every report, including empty scopes.
+        uses: allure-framework/allure-action@v0.9.0
+        with:
+          report-directory: allure-reports/
+          remote-href: https://alexxios.github.io/python-course-project/pr-preview/pr-${{ github.event.pull_request.number }}/
+          github-token: ${{ github.token }}

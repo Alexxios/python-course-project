@@ -78,9 +78,15 @@ upload-artifact, and deploy Pages actions to publish it. PR reports live under
 `/pr-preview/pr-<number>/<scope>/allure/`.
 Each PR update replaces that PR's preview; main-site updates preserve previews.
 
-After updating the preview branch, the official
+After updating the preview branch, the PR workflow dispatches `pages.yml` on the
+default branch and waits for that specific deployment run to succeed. Only then
+does the official
 [allure-framework/allure-action](https://github.com/allure-framework/allure-action)
-posts or updates the summary with links to the hosted PR reports. The action
+post or update the summary with links to the hosted PR reports. Failed, cancelled,
+or timed-out deployments do not post or update the summary. Runs for the same PR
+are serialized so another run cannot replace its preview before the summary is
+posted. The wait runs after the publisher releases the shared Pages concurrency
+group, allowing the deployment to start. The action
 reads only Allure report folders, excluding the custom `summary.json` files from
 `just reports`. It is pinned to `v0.9.0`, whose native table has one row per report,
 including empty matrix members. Dependabot excludes `0.10+` because those releases
@@ -91,16 +97,17 @@ new tests. They never save PR history into the base-branch cache. Without any
 baseline, Allure treats the run as the first run and marks its tests new.
 
 Fork and Dependabot PRs retain artifacts but skip publishing because their
-tokens are read-only. Only publishing jobs receive write permissions. The first
-PR preview seeds `gh-pages` from a successful default-branch run's documentation
-and report artifacts, preserving the existing website.
+tokens are read-only. The publisher can update `gh-pages`; the summary job can
+dispatch the deployment and write PR comments and checks. Test jobs remain
+read-only. The first PR preview seeds `gh-pages` from a successful default-branch
+run's documentation and report artifacts, preserving the existing website.
 
 Keep Pages configured with **GitHub Actions** as its source. `pages.yml` runs
-on the default branch after CI completes, preserving the existing main-only
-`github-pages` environment policy. GitHub requires this `workflow_run` workflow
-to be merged into the default branch before it runs. Preview links become live
-when the ensuing Pages deployment finishes; the workflow also supports manual runs.
-The downloadable `check-reports` artifact remains available as well.
+on the default branch, preserving the existing main-only `github-pages`
+environment policy. Default-branch CI triggers it through `workflow_run`; PRs
+dispatch it explicitly before posting their summary, and manual runs remain
+available. The workflow must exist on the default branch before either trigger
+can be used. The downloadable `check-reports` artifact remains available as well.
 
 ## Browser failure videos
 
