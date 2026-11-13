@@ -15,14 +15,20 @@ member's isolated test environment and in the integration environment.
 | Database integration | [Testcontainers](https://testcontainers-python.readthedocs.io/) (`testcontainers[postgres,redis]`) | Start real PostgreSQL and Redis containers for tests. Requires Docker; your application's database driver determines whether connections are async. |
 | Browser end-to-end | [Playwright](https://playwright.dev/python/) + [pytest-playwright](https://playwright.dev/python/docs/test-runners) (`playwright`, `pytest-playwright`) | Test browser workflows with isolated browser fixtures. Playwright offers sync and async APIs; the included pytest plugin provides sync fixtures and failure video capture. |
 
-Place member tests in `services/<name>/tests/` or `libs/<name>/tests/`, and
-cross-member integration tests in the root `tests/` directory. Run them with:
+The app keeps isolated unit tests in `services/app/tests/unit/` and SQLite
+integration tests in `services/app/tests/integration/`. Mock or patch external
+dependencies in unit tests. Both suites mirror directories under `src/app/`;
+tests for one source file are named `test_<filename>.py`. Workspace-level
+integration tests belong in the root `tests/` directory. Run them with:
 
 ```bash
-just test services/api
+just test services/app
 just test integration
 just test
 ```
+
+From `services/app/`, use `uv run --package app pytest tests/unit` or
+`uv run --package app pytest tests/integration` to select one suite.
 
 For async API tests, use `@pytest.mark.anyio` with HTTPX's `AsyncClient` and
 `ASGITransport`. AnyIO is installed through HTTPX; set the `anyio_backend`

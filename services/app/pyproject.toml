@@ -33,8 +33,8 @@ where = ["src"]
 "*" = ["py.typed"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-markers = ["fuzz: generated API inputs and persistence properties"]
+testpaths = ["tests/unit", "tests/integration"]
+markers = ["fuzz: generated API inputs and property checks"]
 # Load shared workspace hooks while retaining this member's pytest configuration.
 addopts = [
     "--confcutdir=../..",

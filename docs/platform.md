@@ -232,29 +232,37 @@ and expiry, password change revocation, CRUD, frozen enrolled courses, sequentia
 access, grading, progress, privacy, migrations, and AI validation. All AI calls in
 tests use RESPX mocks; no key or paid request is needed. Hypothesis checks grading
 properties; Schemathesis generates catalog requests. Reproduce a reported seed
-with `uv run --package app pytest -c services/app/pyproject.toml
-services/app/tests/routers/v1/learning/catalog/test_fuzz.py --hypothesis-seed=<seed>`.
-
-Tests mirror `src/app/`: each route handler has a directory under
-`tests/routers/v1/<router>/<handler>/`, and grading tests live under
-`tests/learning/grade_answers/`. Shared fixtures live in `conftest.py` at the
-application, v1, and individual router levels. Run a handler directory with
-`uv run --package app pytest -c services/app/pyproject.toml
-services/app/tests/routers/v1/admin/create_course`.
-
-SQLite tests use temporary migrated databases. The same API suite can run against
-a dedicated PostgreSQL test database:
+by running the relevant module from `services/app/`:
 
 ```bash
-TEST_DATABASE_URL=postgresql+psycopg://user:password@127.0.0.1:5432/test_database just test services/app
+uv run --package app pytest tests/integration/routers/v1/test_learning.py -m fuzz --hypothesis-seed=<seed>
 ```
 
-The test user needs permission to create and drop schemas. Each test uses its own
-random schema, applies migrations, and removes that schema afterward. Catalog
-fuzz examples separately use fresh in-memory SQLite databases. Coverage, JUnit,
-and Allure output remain under `reports/services/app/`; CI retains the existing
-Pants-based scope selection and shared uv/Just tooling. The API's CI test job uses
-a PostgreSQL service container and runs the concurrent refresh-token test there.
+Unit tests under `services/app/tests/unit/` cover package metadata and pure
+grading logic, with mocks or patches for external dependencies. Integration
+tests under `services/app/tests/integration/` cover API, OpenAI provider,
+database, migration, CLI, and concurrency behavior using SQLite.
+
+Both suites mirror directories under `src/app/`. Tests for a single source file
+are named `test_<filename>.py`: `routers/v1/auth.py` maps to
+`tests/integration/routers/v1/test_auth.py`, and `learning.py` maps to
+`tests/unit/test_learning.py`. Database/client fixtures live in
+`tests/integration/conftest.py`; shared API factories live in
+`tests/integration/routers/v1/conftest.py`. Module-specific fixtures live in the
+corresponding test file.
+
+Run both suites with `just test services/app`. From `services/app/`, select one
+with `uv run --package app pytest tests/unit` or
+`uv run --package app pytest tests/integration`. Select a handler with, for example,
+`uv run --package app pytest tests/integration/routers/v1/test_auth.py -k refresh`.
+
+Integration fixtures create a temporary SQLite database per test and apply
+migrations. API fuzz examples use fresh in-memory SQLite databases. PostgreSQL
+integration coverage is deferred; the existing PostgreSQL row-lock concurrency
+test is explicitly skipped. CI does not start a database service for these tests.
+Coverage, JUnit, and Allure output for both suites go under `reports/services/app/`.
+The separate root `tests/` scope remains available for workspace-level integration
+tests and reports under `reports/integration/`.
 
 ## Async operations
 
