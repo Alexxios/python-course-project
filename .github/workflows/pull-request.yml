@@ -11,18 +11,3 @@ jobs:
     uses: ./.github/workflows/checks.yml
     with:
       changed-since: ${{ github.event.pull_request.base.sha }}
-
-  publish:
-    needs: checks
-    if: >-
-      ${{ !cancelled() && needs.checks.outputs.reports-ready == 'true' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.actor != 'dependabot[bot]' }}
-    uses: ./.github/workflows/publish-reports.yml
-    permissions:
-      actions: read
-      contents: write
-      pull-requests: write
-      checks: write
-    with:
-      pr-number: ${{ github.event.pull_request.number }}
