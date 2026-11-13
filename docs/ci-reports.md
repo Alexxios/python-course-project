@@ -65,7 +65,49 @@ report directory. `build_reports.py` only summarizes those outputs; it neither
 runs checks nor partitions workspace-wide results. Missing results/tool errors
 show unavailable, empty suites show no tests, and skipped suites show skipped.
 Reports are published after failing checks when report generation succeeds;
-the checks keep their failure status. PRs retain artifacts without publishing.
+the checks keep their failure status. Same-repository PRs also publish a snapshot
+of their reports, while fork runs retain artifacts only.
+
+## Pull request summaries
+
+Both CI workflows call `publish-reports.yml` after reports are retained, including
+after failed tests. It uses
+[JamesIves/github-pages-deploy-action](https://github.com/JamesIves/github-pages-deploy-action)
+to update the `gh-pages` branch. `pages.yml` then uses GitHub's checkout,
+upload-artifact, and deploy Pages actions to publish it. PR reports live under
+`/pr-preview/pr-<number>/<scope>/allure/`.
+Each PR update replaces that PR's preview; main-site updates preserve previews.
+
+After updating the preview branch, the PR workflow dispatches `pages.yml` on the
+default branch and waits for that specific deployment run to succeed. Only then
+does the official
+[allure-framework/allure-action](https://github.com/allure-framework/allure-action)
+post or update the summary with links to the hosted PR reports. Failed, cancelled,
+or timed-out deployments do not post or update the summary. Runs for the same PR
+are serialized so another run cannot replace its preview before the summary is
+posted. The wait runs after the publisher releases the shared Pages concurrency
+group, allowing the deployment to start. The action
+reads only Allure report folders, excluding the custom `summary.json` files from
+`just reports`. It is pinned to `v0.9.0`, whose native table has one row per report,
+including empty matrix members. Dependabot excludes `0.10+` because those releases
+switch to an aggregate table. There is no custom comment renderer.
+
+PR reports restore the latest available base-branch Allure history to identify
+new tests. They never save PR history into the base-branch cache. Without any
+baseline, Allure treats the run as the first run and marks its tests new.
+
+Fork and Dependabot PRs retain artifacts but skip publishing because their
+tokens are read-only. The publisher can update `gh-pages`; the summary job can
+dispatch the deployment and write PR comments and checks. Test jobs remain
+read-only. The first PR preview seeds `gh-pages` from a successful default-branch
+run's documentation and report artifacts, preserving the existing website.
+
+Keep Pages configured with **GitHub Actions** as its source. `pages.yml` runs
+on the default branch, preserving the existing main-only `github-pages`
+environment policy. Default-branch CI triggers it through `workflow_run`; PRs
+dispatch it explicitly before posting their summary, and manual runs remain
+available. The workflow must exist on the default branch before either trigger
+can be used. The downloadable `check-reports` artifact remains available as well.
 
 ## Browser failure videos
 
@@ -101,8 +143,9 @@ GitHub Pages is configured with **GitHub Actions** as its source at
 templates already use this URL for their badges and report links. The one-time
 setup workflow and binding script were removed after configuration.
 
-Default-branch CI publishes the documentation and reports. Badges become available
-after the first successful deployment. No custom token or secret is required.
+Default-branch CI builds the documentation and reports; the shared publisher
+deploys them alongside PR snapshots. Badges become available after the first
+successful deployment. No custom token or secret is required.
 
 Future `just new-service` and `just new-lib` commands render direct links from
 the bound templates without Git/network access or a saved URL configuration.
@@ -140,9 +183,14 @@ endpoints in existing member READMEs, `templates/service/*/README.md`,
     └── integration/                   Separate integration results
 ```
 
-Pages deployment uses an Actions artifact; no `gh-pages` Git branch is needed.
+Pages deployment uses an Actions artifact built from the `gh-pages` branch.
+The deployment action manages branch updates and preserves `/pr-preview/` when
+replacing the default-branch site. Publishing jobs are serialized to avoid
+overwriting concurrent updates. GitHub Pages keeps **GitHub Actions** as its
+source; no separate branch-based Pages build is required.
+
 Coverage pages exist only when data is available. Every badge opens its own
-member's report, which links to its coverage and Allure pages.
+member's default-branch report, which links to its coverage and Allure pages.
 
 ## Allure history
 
@@ -152,6 +200,7 @@ file. It then saves the histories using a unique run/attempt key. Failed test
 runs still enter history. Default-branch workflows are serialized to avoid
 competing history updates. Cache eviction starts new history.
 
-PRs build Allure reports without restoring or saving history. Each scope's
-artifact is uploaded even if its checks fail; the reporting job collects them
-into `check-reports` and, on the default branch, the Pages artifact.
+PRs restore base-branch history and pass it to each scope's report generator,
+without saving the resulting PR history cache. Each scope's artifact is uploaded
+even if its checks fail; the reporting job collects them into `check-reports`
+and, on the default branch, `default-site` for the shared publisher.
