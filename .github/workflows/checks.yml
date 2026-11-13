@@ -12,6 +12,8 @@ on:
     outputs:
       pages-ready:
         value: ${{ jobs.reports.outputs.pages-ready }}
+      allure-ready:
+        value: ${{ jobs.reports.outputs.allure-ready }}
 
 permissions:
   contents: read
@@ -131,6 +133,7 @@ jobs:
     timeout-minutes: 15
     outputs:
       pages-ready: ${{ steps.pages.outcome == 'success' }}
+      allure-ready: ${{ steps.allure.outcome == 'success' && steps.artifact.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -161,6 +164,7 @@ jobs:
           key: allure-history-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: allure-history-${{ github.ref_name }}-
       - name: Build each scope's Allure report
+        id: allure
         run: |
           while IFS= read -r member; do
             output="reports/$member"
@@ -172,7 +176,7 @@ jobs:
               args+=(--history-path "$history")
             fi
             .github/node_modules/.bin/allure awesome "$output/allure-results" \
-              --single-file --output "$output/allure" "${args[@]}"
+              --single-file --name "$member" --output "$output/allure" "${args[@]}"
             if [ "$PUBLISH" = true ]; then cp "$history" "$output/history.jsonl"; fi
           done < <(python -c 'import json, os; print("\n".join(row["path"] for row in json.loads(os.environ["MATRIX"])["include"]))')
         env:
@@ -187,6 +191,7 @@ jobs:
       - name: Build report pages and badges
         run: just reports
       - name: Retain combined reports
+        id: artifact
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
