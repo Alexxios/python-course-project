@@ -137,7 +137,7 @@ endpoints in existing member READMEs, `templates/service/*/README.md`,
     │   ├── lint.exit, format.exit, test.exit
     │   └── summary.json
     ├── libs/<name>/                   Same layout for each library
-    └── integration/                   Separate cross-member results
+    └── integration/                   Separate integration results
 ```
 
 Pages deployment uses an Actions artifact; no `gh-pages` Git branch is needed.

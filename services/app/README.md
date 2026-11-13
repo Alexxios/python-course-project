@@ -68,23 +68,46 @@ src/app/
         └── practice.py
 ```
 
-`tests/` mirrors `src/app/`. Each handler has its own directory, such as
-`tests/routers/v1/auth/refresh/` or `tests/routers/v1/admin/create_course/`.
-Non-router tests follow the same convention, for example `tests/learning/grade_answers/`.
-The root `conftest.py` owns database/client fixtures; `routers/v1/conftest.py`
-provides accounts and course factories. Router-level fixtures provide enrollment,
-registration, and practice setup without sharing mutable state between tests.
+`tests/unit/` contains isolated unit tests, using mocks or patches for external
+dependencies. `tests/integration/` exercises API, OpenAI, database, migration,
+CLI, and concurrency behavior with PostgreSQL Testcontainers. OpenAI calls use
+RESPX mocks and need no API key.
 
-Run one handler's tests from the workspace root:
+Both directories mirror the directory structure under `src/app/`. Tests for a
+single source file are named `test_<source_filename>.py`, for example:
+
+| Source | Tests |
+| --- | --- |
+| `src/app/learning.py` | `tests/unit/test_learning.py` |
+| `src/app/database.py` | `tests/integration/test_database.py` |
+| `src/app/routers/v1/auth.py` | `tests/integration/routers/v1/test_auth.py` |
+| `src/app/migrations/versions/0001_learning_platform.py` | `tests/integration/migrations/versions/test_0001_learning_platform.py` |
+
+`tests/conftest.py` configures Hypothesis for both suites.
+`tests/integration/conftest.py` owns PostgreSQL database/client fixtures, and
+`tests/integration/routers/v1/conftest.py` provides account and course factories.
+Fixtures specific to a source module live in its test file.
+
+Run both suites with `just test services/app`. To select a suite or source module:
 
 ```bash
-uv run --package app pytest -c services/app/pyproject.toml services/app/tests/routers/v1/auth/refresh
+cd services/app
+uv run --package app pytest tests/unit
+uv run --package app pytest tests/integration
+uv run --package app pytest tests/integration/routers/v1/test_auth.py -k refresh
 ```
 
-Run `just check services/app` for the service or `just check` for all scopes,
+Run `just check services/app` for service lint and both test suites, or `just check` for all scopes,
 generated README validation, and documentation. The suite uses pytest, coverage,
-Allure, Hypothesis, Schemathesis, and RESPX. Set `TEST_DATABASE_URL` to a dedicated
-PostgreSQL test database to run the API tests in isolated PostgreSQL schemas.
+Allure, Hypothesis, Schemathesis, and RESPX. Integration tests need a running
+Docker daemon. Testcontainers starts one PostgreSQL container per test session
+and removes it afterward. The image comes directly from `services.postgres.image`
+in [infra/docker-compose.yml](../../infra/docker-compose.yml), so changing the
+infrastructure image also updates the tests. Each test and generated fuzz example
+gets its own schema, applies migrations, and drops the schema afterward.
+The development Compose stack does not need to be running. Unit tests do not
+require Docker.
+See [Development tools](../../docs/tools.md#testing) for Colima socket setup.
 
 Manage runtime version bounds in the root `pyproject.toml`. This member declares
 dependency names and extras without bounds; the shared `uv.lock` controls the

@@ -51,16 +51,22 @@ Prometheus, and Grafana. See the [quickstart](docs/quickstart.md#docker-compose)
 for configuration and shutdown commands.
 
 Members contain an editable `pyproject.toml`, `src/<package>/`, and `tests/`.
+The app separates `tests/unit/` from `tests/integration/`: unit tests mock external
+dependencies, and integration tests use PostgreSQL Testcontainers. Start Docker
+before running integration tests; their PostgreSQL image is read directly from
+`infra/docker-compose.yml` to match the development infrastructure.
 Services also have a FastAPI `app`, a Dockerfile that starts Uvicorn on port 80,
 and `k8s/` defaults for a Deployment, a ClusterIP Service, and Kustomize. Each service
 README explains image configuration and deployment. Libraries contain Python
-packages without deployment files. Root `tests/` contains integration tests.
+packages without deployment files. Root `tests/` is reserved for workspace-level
+integration tests.
 
 Service `main.py` assembles the application and its lifespan; `routers/health.py`
 provides `/health/live` and `/health/ready` for HTTP probes. Readiness returns 503
 when the instance is unavailable. Add business route groups under `routers/v1/`
-and register them in `routers/v1/__init__.py`. Tests mirror `src/app/`, with a
-directory per handler and shared setup in the nearest `conftest.py`.
+and register them in `routers/v1/__init__.py`. Both app test suites mirror the
+directories in `src/app/`, naming tests for a source file `test_<filename>.py`.
+Shared setup lives in the nearest `conftest.py`.
 
 Use `just new-service <name>` or `just new-lib <name>`, optionally followed by a
 description: `just new-lib common "Shared utilities"`.
@@ -82,8 +88,9 @@ its own environment under `.venvs/` and output under `reports/`. Checks continue
 members and return failure if any member fails. An empty integration suite is
 allowed; a member without tests fails its test check.
 
-Each member's pytest configuration uses `testpaths = ["tests"]` and coverage of
-its own `src/`. Root pytest configuration covers integration tests only. These
+Each member's pytest configuration discovers its own tests and measures its
+`src/`. The app discovers both `tests/unit/` and `tests/integration/`. Root pytest
+configuration covers workspace-level integration tests only. These
 files stay editable; creating a member does not regenerate them.
 
 Manage runtime versions in the root `pyproject.toml`, where Dependabot maintains
