@@ -18,18 +18,3 @@ jobs:
     uses: ./.github/workflows/checks.yml
     with:
       publish: true
-
-  deploy:
-    needs: checks
-    if: ${{ !cancelled() && needs.checks.outputs.pages-ready == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v5
-        id: deployment

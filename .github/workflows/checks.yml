@@ -9,11 +9,6 @@ on:
       changed-since:
         type: string
         default: ""
-    outputs:
-      pages-ready:
-        value: ${{ jobs.reports.outputs.pages-ready }}
-      allure-ready:
-        value: ${{ jobs.reports.outputs.allure-ready }}
 
 permissions:
   contents: read
@@ -76,6 +71,12 @@ jobs:
           just bootstrap
       - name: Check generated files
         run: just check-generated
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Test report publishing
+        run: node --test .github/scripts/reports.test.cjs
       - name: Validate Compose configurations
         run: |
           docker compose --env-file .env.example -f infra/docker-compose.yml config --quiet
@@ -131,9 +132,6 @@ jobs:
     if: ${{ !cancelled() && needs.discover.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    outputs:
-      pages-ready: ${{ steps.pages.outcome == 'success' }}
-      allure-ready: ${{ steps.allure.outcome == 'success' && steps.artifact.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -157,28 +155,30 @@ jobs:
           path: reports/
       - name: Restore Allure history
         id: history
-        if: ${{ inputs.publish }}
         uses: actions/cache/restore@v6
         with:
           path: .allure-history/
-          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: allure-history-${{ github.ref_name }}-
+          key: allure-history-${{ github.base_ref || github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: allure-history-${{ github.base_ref || github.ref_name }}-
       - name: Build each scope's Allure report
         id: allure
         run: |
           while IFS= read -r member; do
             output="reports/$member"
             mkdir -p "$output/allure-results"
-            args=()
-            if [ "$PUBLISH" = true ]; then
-              history=".allure-history/$member.jsonl"
-              mkdir -p "$(dirname "$history")"
-              args+=(--history-path "$history")
+            history=".allure-history/$member.jsonl"
+            mkdir -p "$(dirname "$history")"
+            # Record availability before Allure appends this run to the local history.
+            if [ -s "$history" ]; then
+              echo true > "$output/allure-history-available.json"
+            else
+              echo false > "$output/allure-history-available.json"
             fi
             .github/node_modules/.bin/allure awesome "$output/allure-results" \
-              --single-file --name "$member" --output "$output/allure" "${args[@]}"
+              --single-file --name "$member" --output "$output/allure" --history-path "$history"
             if [ "$PUBLISH" = true ]; then cp "$history" "$output/history.jsonl"; fi
           done < <(python -c 'import json, os; print("\n".join(row["path"] for row in json.loads(os.environ["MATRIX"])["include"]))')
+          printf '%s\n' "$MATRIX" > reports/allure-matrix.json
         env:
           PUBLISH: ${{ inputs.publish }}
           MATRIX: ${{ needs.discover.outputs.matrix }}
@@ -208,9 +208,11 @@ jobs:
         run: |
           mkdir -p site/reports
           cp -R reports/. site/reports/
-      - name: Upload Pages artifact
+      - name: Retain default-branch site
         id: pages
         if: ${{ inputs.publish }}
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
+          name: default-site
           path: site/
+          if-no-files-found: error

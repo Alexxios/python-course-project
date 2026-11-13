@@ -1,0 +1,111 @@
+name: Publish reports
+
+on:
+  workflow_run:
+    workflows: [Pull request checks, Default branch checks and Pages deployment]
+    types: [completed]
+
+permissions:
+  contents: read
+
+# All publishers update the same site, including preserved PR snapshots.
+concurrency:
+  group: github-pages-publication
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      ${{ github.event.workflow_run.conclusion != 'cancelled' &&
+          github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+      pages: write
+      id-token: write
+      pull-requests: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # workflow_run uses trusted code from the default branch, never PR code.
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Select reports to publish
+        id: source
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { selectPublication } = require('./.github/scripts/reports.cjs');
+            const publication = await selectPublication({ github, context, core });
+            for (const [key, value] of Object.entries(publication)) core.setOutput(key, value);
+      - uses: actions/download-artifact@v8
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        with:
+          name: ${{ steps.source.outputs.artifact }}
+          path: incoming/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Download initial default-branch site
+        if: ${{ steps.source.outputs.bootstrap-run != '' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: default-site
+          path: bootstrap/
+          run-id: ${{ steps.source.outputs.bootstrap-run }}
+          github-token: ${{ github.token }}
+      - name: Restore published site
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        env:
+          STORED_SITE: ${{ steps.source.outputs.stored-site }}
+        run: |
+          if [ "$STORED_SITE" = true ]; then
+            git fetch --depth=1 origin pages-reports
+            git worktree add --detach published FETCH_HEAD
+          else
+            git worktree add --detach --no-checkout published HEAD
+            git -C published switch --orphan pages-reports
+          fi
+      - name: Assemble site and summary
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        env:
+          PUBLICATION: ${{ steps.source.outputs.publication }}
+        run: node .github/scripts/reports.cjs
+      - uses: actions/upload-pages-artifact@v5
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        with:
+          path: published/
+      - uses: actions/deploy-pages@v5
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        id: deployment
+      - name: Retain published site
+        if: ${{ steps.source.outputs.publish == 'true' }}
+        env:
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
+          SOURCE_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          git -C published config user.name 'github-actions[bot]'
+          git -C published config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C published add --all
+          if ! git -C published diff --cached --quiet; then
+            git -C published commit -m "Publish reports for run $SOURCE_RUN attempt $SOURCE_ATTEMPT"
+          fi
+          git -C published push origin HEAD:refs/heads/pages-reports
+      - name: Post matrix summary
+        if: ${{ steps.source.outputs.pr-number != '' }}
+        uses: actions/github-script@v8
+        env:
+          PUBLICATION: ${{ steps.source.outputs.publication }}
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        with:
+          script: |
+            const { postSummary } = require('./.github/scripts/reports.cjs');
+            await postSummary({ github, context, core,
+              publication: JSON.parse(process.env.PUBLICATION),
+              pagesUrl: process.env.PAGES_URL });
