@@ -131,7 +131,6 @@ async def test_expired_tokens_and_logout(client, application, account_factory):
     ).status_code == 401
 
 
-@pytest.mark.skip(reason="PostgreSQL row-lock coverage is deferred; service tests use SQLite")
 async def test_simultaneous_refresh_is_single_use_on_postgresql(client, account_factory):
     _, _, tokens = await account_factory()
     start = asyncio.Event()

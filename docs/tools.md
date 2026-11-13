@@ -15,7 +15,7 @@ member's isolated test environment and in the integration environment.
 | Database integration | [Testcontainers](https://testcontainers-python.readthedocs.io/) (`testcontainers[postgres,redis]`) | Start real PostgreSQL and Redis containers for tests. Requires Docker; your application's database driver determines whether connections are async. |
 | Browser end-to-end | [Playwright](https://playwright.dev/python/) + [pytest-playwright](https://playwright.dev/python/docs/test-runners) (`playwright`, `pytest-playwright`) | Test browser workflows with isolated browser fixtures. Playwright offers sync and async APIs; the included pytest plugin provides sync fixtures and failure video capture. |
 
-The app keeps isolated unit tests in `services/app/tests/unit/` and SQLite
+The app keeps isolated unit tests in `services/app/tests/unit/` and PostgreSQL
 integration tests in `services/app/tests/integration/`. Mock or patch external
 dependencies in unit tests. Both suites mirror directories under `src/app/`;
 tests for one source file are named `test_<filename>.py`. Workspace-level
@@ -60,8 +60,11 @@ Testcontainers needs a running Docker daemon locally and in CI. Create and clean
 up containers in fixtures or context managers, and declare your application's
 chosen database driver with a version in the root manifest and an unversioned
 name in the member's dependencies. The PostgreSQL and Redis
-extras are included in the shared dev group; they do not configure application
-connections or migrations.
+extras are included in the shared dev group. The app's integration fixtures start
+one PostgreSQL container per test session, using `services.postgres.image` from
+`infra/docker-compose.yml` as the single source for the database image. They
+create a separate schema for every test and Hypothesis example, apply migrations,
+and remove the schema after use. Unit tests run without Docker.
 
 For local development, `infra/docker-compose.yml` provides persistent PostgreSQL
 and Redis services alongside Prometheus and Grafana. Add
@@ -69,6 +72,16 @@ and Redis services alongside Prometheus and Grafana. Add
 PostgreSQL service. See `infra/README.md` for startup commands and connection
 settings. Testcontainers fixtures create their own disposable databases and can
 run independently of the development stack.
+
+When using Colima, start it and point the Docker SDK at its socket before
+running integration tests:
+
+```bash
+colima start
+export DOCKER_HOST="$(docker context inspect colima --format '{{.Endpoints.docker.Host}}')"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+just test services/app
+```
 
 Before running browser tests, install Chromium and start the application:
 

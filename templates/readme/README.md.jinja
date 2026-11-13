@@ -52,7 +52,9 @@ for configuration and shutdown commands.
 
 Members contain an editable `pyproject.toml`, `src/<package>/`, and `tests/`.
 The app separates `tests/unit/` from `tests/integration/`: unit tests mock external
-dependencies, and integration tests use temporary SQLite databases.
+dependencies, and integration tests use PostgreSQL Testcontainers. Start Docker
+before running integration tests; their PostgreSQL image is read directly from
+`infra/docker-compose.yml` to match the development infrastructure.
 Services also have a FastAPI `app`, a Dockerfile that starts Uvicorn on port 80,
 and `k8s/` defaults for a Deployment, a ClusterIP Service, and Kustomize. Each service
 README explains image configuration and deployment. Libraries contain Python

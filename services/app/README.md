@@ -70,7 +70,7 @@ src/app/
 
 `tests/unit/` contains isolated unit tests, using mocks or patches for external
 dependencies. `tests/integration/` exercises API, OpenAI, database, migration,
-CLI, and concurrency behavior with temporary SQLite databases. OpenAI calls use
+CLI, and concurrency behavior with PostgreSQL Testcontainers. OpenAI calls use
 RESPX mocks and need no API key.
 
 Both directories mirror the directory structure under `src/app/`. Tests for a
@@ -84,7 +84,7 @@ single source file are named `test_<source_filename>.py`, for example:
 | `src/app/migrations/versions/0001_learning_platform.py` | `tests/integration/migrations/versions/test_0001_learning_platform.py` |
 
 `tests/conftest.py` configures Hypothesis for both suites.
-`tests/integration/conftest.py` owns SQLite database/client fixtures, and
+`tests/integration/conftest.py` owns PostgreSQL database/client fixtures, and
 `tests/integration/routers/v1/conftest.py` provides account and course factories.
 Fixtures specific to a source module live in its test file.
 
@@ -99,9 +99,15 @@ uv run --package app pytest tests/integration/routers/v1/test_auth.py -k refresh
 
 Run `just check services/app` for service lint and both test suites, or `just check` for all scopes,
 generated README validation, and documentation. The suite uses pytest, coverage,
-Allure, Hypothesis, Schemathesis, and RESPX. Service integration tests always use
-SQLite. PostgreSQL-specific coverage is deferred; the existing row-lock concurrency
-test is explicitly skipped.
+Allure, Hypothesis, Schemathesis, and RESPX. Integration tests need a running
+Docker daemon. Testcontainers starts one PostgreSQL container per test session
+and removes it afterward. The image comes directly from `services.postgres.image`
+in [infra/docker-compose.yml](../../infra/docker-compose.yml), so changing the
+infrastructure image also updates the tests. Each test and generated fuzz example
+gets its own schema, applies migrations, and drops the schema afterward.
+The development Compose stack does not need to be running. Unit tests do not
+require Docker.
+See [Development tools](../../docs/tools.md#testing) for Colima socket setup.
 
 Manage runtime version bounds in the root `pyproject.toml`. This member declares
 dependency names and extras without bounds; the shared `uv.lock` controls the

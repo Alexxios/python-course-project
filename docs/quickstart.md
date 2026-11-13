@@ -102,7 +102,9 @@ outage. The catalog initially contains no courses.
 `just check` validates generated documentation, builds MkDocs, runs Ruff, and
 executes pytest in isolated member environments. Each scope emits coverage,
 JUnit, and Allure artifacts under `reports/`. `just check services/app` checks
-only the API service. See [tests](platform.md#tests) for SQLite integration and fuzz runs.
+only the API service. Start Docker before running the app's integration tests;
+Testcontainers manages a disposable PostgreSQL container using the same image
+as `infra/docker-compose.yml`. See [tests](platform.md#tests) for integration and fuzz runs.
 
 ## Daily workflow
 
@@ -118,7 +120,8 @@ generated workspace README and run `just codegen`.
 
 `just new-service <name>` and `just new-lib <name>` still scaffold workspace
 members. App unit tests live in `services/app/tests/unit/`; API and database tests
-live in `services/app/tests/integration/` and use SQLite. `just docs`, `just serve`, and
+live in `services/app/tests/integration/` and use PostgreSQL Testcontainers.
+`just docs`, `just serve`, and
 `just reports` retain the existing documentation and reporting workflows.
 See [Development tools](tools.md)
 and [CI reports](ci-reports.md) for the shared tooling.

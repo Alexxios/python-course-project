@@ -29,7 +29,8 @@ App tests are split into `services/app/tests/unit/` and
 API integration tests for `routers/v1/auth.py` live in
 `tests/integration/routers/v1/test_auth.py`, while unit tests for `learning.py`
 live in `tests/unit/test_learning.py`. Integration fixtures provide temporary
-SQLite databases and accounts isolated per test.
+PostgreSQL schemas and accounts isolated per test, using Testcontainers with the
+database image configured in `infra/docker-compose.yml`.
 
 ```bash
 # Inspect one review unit.

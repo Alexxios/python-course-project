@@ -13,16 +13,12 @@ from schemathesis.checks import (
 )
 from schemathesis.generation import GenerationMode
 
-from app.config import Settings
-from app.database import upgrade_database
-from app.main import create_app
+from app.main import app
 
 pytestmark = pytest.mark.anyio
 
 
-SCHEMA = schemathesis.openapi.from_dict(
-    create_app(settings=Settings(database_url="sqlite://")).openapi()
-)
+SCHEMA = schemathesis.openapi.from_dict(app.openapi())
 
 
 CHECKS = [
@@ -56,40 +52,38 @@ async def test_bad_catalog_parameters_are_rejected(client, parameters):
     assert (await client.get("/v1/courses", params=parameters)).status_code == 422
 
 
-async def test_database_error_is_safe(tmp_path):
-    app = create_app(settings=Settings(database_url=f"sqlite:///{tmp_path / 'missing.db'}"))
+async def test_database_error_is_safe(application_factory):
     async with (
+        application_factory(migrate=False) as app,
         app.router.lifespan_context(app),
         AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client,
     ):
         response = await client.get("/v1/courses")
         assert response.status_code == 503
-        assert str(tmp_path) not in response.text
+        assert response.json() == {
+            "detail": "Database unavailable; check configuration and migrations"
+        }
 
 
 @pytest.mark.fuzz
 @pytest.mark.parametrize("mode", list(GenerationMode))
 @given(data=st.data())
-def test_catalog_openapi_inputs(mode, data):
+def test_catalog_openapi_inputs(application_factory, mode, data):
     case = data.draw(SCHEMA["/v1/courses"]["GET"].as_strategy(generation_mode=mode))
-    asyncio.run(check_case(case))
+    asyncio.run(check_case(case, application_factory))
 
 
-async def check_case(case):
-    app = create_app(settings=Settings(database_url="sqlite://"))
-    try:
-        await upgrade_database(app.state.engine)
-        async with (
-            app.router.lifespan_context(app),
-            AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client,
-        ):
-            request = case.as_transport_kwargs(base_url="http://testserver")
-            client.cookies.update(request.pop("cookies", {}))
-            response = await client.request(**request)
-            case.validate_response(response, checks=CHECKS)
-            assert response.status_code in (200, 400, 404, 422)
-    finally:
-        await app.state.engine.dispose()
+async def check_case(case, application_factory):
+    async with (
+        application_factory() as app,
+        app.router.lifespan_context(app),
+        AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client,
+    ):
+        request = case.as_transport_kwargs(base_url="http://testserver")
+        client.cookies.update(request.pop("cookies", {}))
+        response = await client.request(**request)
+        case.validate_response(response, checks=CHECKS)
+        assert response.status_code in (200, 400, 404, 422)
 
 
 async def test_search_pagination_and_draft_filter(client, course_factory):
@@ -126,9 +120,9 @@ async def test_completion_is_idempotent(client, student_headers, learned_course)
 @pytest.mark.fuzz
 @pytest.mark.parametrize("mode", list(GenerationMode))
 @given(data=st.data())
-def test_course_detail_openapi_inputs(mode, data):
+def test_course_detail_openapi_inputs(application_factory, mode, data):
     case = data.draw(SCHEMA["/v1/courses/{course_id}"]["GET"].as_strategy(generation_mode=mode))
-    asyncio.run(check_case(case))
+    asyncio.run(check_case(case, application_factory))
 
 
 async def test_public_description_and_hidden_drafts(client, course_factory):

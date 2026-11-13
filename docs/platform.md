@@ -241,7 +241,7 @@ uv run --package app pytest tests/integration/routers/v1/test_learning.py -m fuz
 Unit tests under `services/app/tests/unit/` cover package metadata and pure
 grading logic, with mocks or patches for external dependencies. Integration
 tests under `services/app/tests/integration/` cover API, OpenAI provider,
-database, migration, CLI, and concurrency behavior using SQLite.
+database, migration, CLI, and concurrency behavior using PostgreSQL Testcontainers.
 
 Both suites mirror directories under `src/app/`. Tests for a single source file
 are named `test_<filename>.py`: `routers/v1/auth.py` maps to
@@ -256,10 +256,16 @@ with `uv run --package app pytest tests/unit` or
 `uv run --package app pytest tests/integration`. Select a handler with, for example,
 `uv run --package app pytest tests/integration/routers/v1/test_auth.py -k refresh`.
 
-Integration fixtures create a temporary SQLite database per test and apply
-migrations. API fuzz examples use fresh in-memory SQLite databases. PostgreSQL
-integration coverage is deferred; the existing PostgreSQL row-lock concurrency
-test is explicitly skipped. CI does not start a database service for these tests.
+Integration tests require a running Docker daemon. Testcontainers starts one
+PostgreSQL container per session and removes it afterward. The image is read
+directly from `services.postgres.image` in `infra/docker-compose.yml`, keeping
+the test database version aligned with the development infrastructure. Each
+test and generated API fuzz example uses its own schema, applies migrations,
+and drops that schema afterward. The suite includes refresh-token row-lock
+concurrency and HTTP responsiveness while a PostgreSQL query waits for a lock.
+CI uses the same fixtures; no separately configured database service is needed.
+Unit tests do not require Docker, and the development Compose stack does not
+need to be running for integration tests.
 Coverage, JUnit, and Allure output for both suites go under `reports/services/app/`.
 The separate root `tests/` scope remains available for workspace-level integration
 tests and reports under `reports/integration/`.
