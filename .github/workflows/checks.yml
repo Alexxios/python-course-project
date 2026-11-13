@@ -9,6 +9,11 @@ on:
       changed-since:
         type: string
         default: ""
+    outputs:
+      reports-ready:
+        value: ${{ jobs.reports.outputs.reports-ready }}
+      site-ready:
+        value: ${{ jobs.reports.outputs.site-ready }}
 
 permissions:
   contents: read
@@ -71,12 +76,6 @@ jobs:
           just bootstrap
       - name: Check generated files
         run: just check-generated
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          package-manager-cache: false
-      - name: Test report publishing
-        run: node --test .github/scripts/reports.test.cjs
       - name: Validate Compose configurations
         run: |
           docker compose --env-file .env.example -f infra/docker-compose.yml config --quiet
@@ -132,6 +131,9 @@ jobs:
     if: ${{ !cancelled() && needs.discover.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      reports-ready: ${{ steps.allure.outcome == 'success' && steps.artifact.outcome == 'success' }}
+      site-ready: ${{ steps.pages.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -168,17 +170,10 @@ jobs:
             mkdir -p "$output/allure-results"
             history=".allure-history/$member.jsonl"
             mkdir -p "$(dirname "$history")"
-            # Record availability before Allure appends this run to the local history.
-            if [ -s "$history" ]; then
-              echo true > "$output/allure-history-available.json"
-            else
-              echo false > "$output/allure-history-available.json"
-            fi
             .github/node_modules/.bin/allure awesome "$output/allure-results" \
               --single-file --name "$member" --output "$output/allure" --history-path "$history"
             if [ "$PUBLISH" = true ]; then cp "$history" "$output/history.jsonl"; fi
           done < <(python -c 'import json, os; print("\n".join(row["path"] for row in json.loads(os.environ["MATRIX"])["include"]))')
-          printf '%s\n' "$MATRIX" > reports/allure-matrix.json
         env:
           PUBLISH: ${{ inputs.publish }}
           MATRIX: ${{ needs.discover.outputs.matrix }}

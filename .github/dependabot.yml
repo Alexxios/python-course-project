@@ -2,6 +2,10 @@ version: 2
 updates:
 - package-ecosystem: github-actions
   directory: /
+  # Allure Action 0.10+ replaces per-report rows with an aggregate table.
+  ignore:
+  - dependency-name: allure-framework/allure-action
+    versions: [">=0.10.0"]
   schedule:
     interval: weekly
   groups:

@@ -18,3 +18,13 @@ jobs:
     uses: ./.github/workflows/checks.yml
     with:
       publish: true
+
+  deploy:
+    needs: checks
+    if: ${{ !cancelled() && needs.checks.outputs.site-ready == 'true' }}
+    uses: ./.github/workflows/publish-reports.yml
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+      checks: write
