@@ -15,6 +15,11 @@ password changes, current profile, and explicit administrator provisioning.
 Administrator CRUD for courses, ordered lessons, and questions; publication,
 public catalog search/pagination, and content freeze after enrollment.
 
+## DEV-5
+
+Enrollment, sequential lesson access, completion, automatic test grading,
+progress, and private attempt history.
+
 Interactive docs: `/v1/docs`; OpenAPI: `/v1/openapi.json`.
 
 Create an administrator after applying migrations:
