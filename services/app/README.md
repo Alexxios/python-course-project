@@ -23,10 +23,17 @@ the working directory. Export `DATABASE_URL` for a different SQLite path or a
 `postgresql+psycopg://` connection. Run migrations explicitly before the server.
 An administrator password is prompted securely; no default account is installed.
 
-For containers, `docker compose up --build -d` at the workspace root starts
-PostgreSQL, runs migrations, and starts the API. The existing Dockerfile installs
-locked runtime dependencies and starts Uvicorn on port 80. The root Compose file
-publishes port 8000 on localhost. PostgreSQL data lives in a named volume.
+For containers, run from the workspace root after `just bootstrap`:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d api
+```
+
+The application services in `infra/docker-compose.dev.yml` use the shared
+PostgreSQL service from `infra/docker-compose.yml`, run migrations, and start the
+API. The existing Dockerfile installs locked runtime dependencies and starts
+Uvicorn on port 80. Compose publishes port 8000 on localhost. PostgreSQL data
+lives in the infrastructure stack's `postgres-data` volume.
 
 Database work uses SQLAlchemy async sessions with `aiosqlite` or psycopg.
 AI requests use HTTPX `AsyncClient`; password work runs in worker threads.

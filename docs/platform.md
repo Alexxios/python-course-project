@@ -21,7 +21,7 @@ Docker Compose stack. The [review stack](review.md) ends at `DEV-7`. Assignments
 | Automatic test grading | Server-side answer validation, score calculation, passing threshold, and attempt history |
 | Personal cabinet | Current profile, enrolled courses, completion percentages, and private grades |
 | Personalized test generation | Local adaptive question selection and optional AI generation from completed lessons |
-| Deployment | Existing Dockerfile plus root Compose file with PostgreSQL and migration startup dependency |
+| Deployment | Existing Dockerfile plus Compose files in `infra/` with shared PostgreSQL and migration startup dependency |
 | Testing | Endpoint, authorization, persistence, migration, property, and OpenAPI tests |
 
 Optional video links are supported on lessons. Teacher accounts and course
@@ -207,7 +207,7 @@ transactions that commit before a response is sent or roll back on failure.
 
 Migrations are packaged with the service and run with `python -m app init-db`.
 The API never automatically creates or upgrades a schema. See the
-[quickstart](quickstart.md#docker-compose) for the root Compose stack. In Kubernetes,
+[quickstart](quickstart.md#docker-compose) for the Compose stack in `infra/`. In Kubernetes,
 provide the `learning-platform` Secret with a `database-url` key and run the
 `services/app/k8s/migration-job.yaml` job with the same release image before
 rolling out the deployment. Set the job image as well as the Kustomize image;

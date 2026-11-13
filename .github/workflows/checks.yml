@@ -74,6 +74,10 @@ jobs:
           just bootstrap
       - name: Check generated files
         run: just check-generated
+      - name: Validate Compose configurations
+        run: |
+          docker compose --env-file .env.example -f infra/docker-compose.yml config --quiet
+          docker compose --env-file .env.example -f infra/docker-compose.yml -f infra/docker-compose.dev.yml config --quiet
       - name: Build documentation
         if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
         run: just docs

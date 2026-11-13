@@ -1,4 +1,4 @@
-# Local databases and monitoring. Add application services as they are scaffolded.
+# Local databases and monitoring. Application services are in docker-compose.dev.yml.
 services:
   postgres:
     image: postgres:18.6

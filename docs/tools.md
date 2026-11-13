@@ -58,9 +58,11 @@ extras are included in the shared dev group; they do not configure application
 connections or migrations.
 
 For local development, `infra/docker-compose.yml` provides persistent PostgreSQL
-and Redis services alongside Prometheus and Grafana. See `infra/README.md` for
-startup commands and connection settings. Testcontainers fixtures create their
-own disposable databases and can run independently of the development stack.
+and Redis services alongside Prometheus and Grafana. Add
+`infra/docker-compose.dev.yml` to run the API and migrations against that same
+PostgreSQL service. See `infra/README.md` for startup commands and connection
+settings. Testcontainers fixtures create their own disposable databases and can
+run independently of the development stack.
 
 Before running browser tests, install Chromium and start the application:
 

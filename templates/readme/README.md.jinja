@@ -36,10 +36,19 @@ uv run --package app uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 Open <http://127.0.0.1:8000/v1/docs> for the API documentation. Health endpoints are
 `/health/live` and `/health/ready`.
 
-Alternatively, run `docker compose up --build -d`. Compose starts PostgreSQL,
-applies migrations, then starts the API on port 8000. Provision an administrator
-with `docker compose exec api uv run --no-sync python -m app create-admin
---username admin --first-name Admin --last-name User` (enter the command on one line).
+Alternatively, use the Compose files in `infra/`. From the workspace root after
+`just bootstrap`:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d api
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec api \
+  uv run --no-sync python -m app create-admin --username admin --first-name Admin --last-name User
+```
+
+Compose uses the shared PostgreSQL service, applies migrations, then starts the
+API on port 8000. Omit `api` from the startup command to also start Redis,
+Prometheus, and Grafana. See the [quickstart](docs/quickstart.md#docker-compose)
+for configuration and shutdown commands.
 
 Members contain an editable `pyproject.toml`, `src/<package>/`, and `tests/`.
 Services also have a FastAPI `app`, a Dockerfile that starts Uvicorn on port 80,

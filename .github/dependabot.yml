@@ -45,9 +45,7 @@ updates:
       patterns:
       - '*'
 - package-ecosystem: docker-compose
-  directories:
-  - /
-  - /infra
+  directory: /infra
   schedule:
     interval: weekly
   groups:

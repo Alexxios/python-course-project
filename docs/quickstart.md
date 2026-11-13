@@ -50,29 +50,41 @@ only when it is missing.
 
 ## Docker Compose
 
-Start Docker Engine or Docker Desktop, then run:
+Start Docker Engine or Docker Desktop, then run from the workspace root:
 
 ```bash
-docker compose up --build -d
-docker compose ps
-docker compose exec api uv run --no-sync python -m app create-admin --username admin --first-name Admin --last-name User
+just bootstrap
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d api
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml ps -a
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec api \
+  uv run --no-sync python -m app create-admin --username admin --first-name Admin --last-name User
 ```
 
-The root `compose.yml` builds the existing service Dockerfile, starts PostgreSQL,
-waits for database health, runs migrations, and starts the API. The migration
-container exits successfully after applying the schema. PostgreSQL is reachable
-only inside the Compose network. The API binds to `127.0.0.1:8000` by default;
-set `APP_PORT` in `.env` to change that port. Database data persists in the
-`learning-postgres-data` volume.
+`infra/docker-compose.dev.yml` adds the API and migration service to the shared
+infrastructure in `infra/docker-compose.yml`. The command builds the existing
+service Dockerfile, starts `postgres`, waits for database health, runs migrations,
+and starts the API. The migration container exits successfully after applying the
+schema. PostgreSQL is also available on `127.0.0.1:5432` for host development;
+set `POSTGRES_PORT` in `.env` to change that port. The API binds to
+`127.0.0.1:8000` by default; set `APP_PORT` to change its port. Database data
+persists in the shared `postgres-data` volume.
 
 `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` default to `app` for local
 development. Override them in `.env` before the first startup. Use URL-safe
 credentials (letters, digits, `_`, `-`) with this local Compose template, which
-interpolates them into the connection URL. The optional monitoring/development infrastructure remains in
-`infra/docker-compose.yml`; it is independent of the root application stack.
+interpolates them into the connection URL. Omit the final `api` from the startup
+command to include Redis, Prometheus, and Grafana in the same stack. See
+`infra/README.md` for connection and monitoring settings, and for notes on data
+from the previous root Compose stack.
 
-Inspect logs with `docker compose logs api migrate`. Stop containers with
-`docker compose down`; the database volume is retained.
+Inspect logs or stop the combined stack with the same Compose files:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml logs api migrate
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml down
+```
+
+The database volume is retained when the stack is stopped.
 
 ## Check the service
 

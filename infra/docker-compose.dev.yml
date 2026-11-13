@@ -1,2 +1,35 @@
-# Development overrides for docker-compose.yml.
-services: {}
+# Application services extending docker-compose.yml.
+x-application: &application
+  build:
+    context: ..
+    dockerfile: services/app/Dockerfile
+  image: learning-platform-app:local
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/${POSTGRES_DB:-app}
+    QUIZ_GENERATOR: ${QUIZ_GENERATOR:-local}
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    OPENAI_MODEL: ${OPENAI_MODEL:-}
+
+services:
+  migrate:
+    <<: *application
+    command: ["uv", "run", "--no-sync", "python", "-m", "app", "init-db"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *application
+    ports:
+      - "127.0.0.1:${APP_PORT:-8000}:80"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "uv", "run", "--no-sync", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/health/ready', timeout=5)"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
