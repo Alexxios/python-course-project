@@ -1,0 +1,711 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Учебная платформа: final Python project with an API under /v1.">
+      
+      
+      
+      
+        <link rel="prev" href="../review/">
+      
+      
+        <link rel="next" href="../ci-reports/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Development tools - Python Course Project</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#development-tools" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Python Course Project" class="md-header__button md-logo" aria-label="Python Course Project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Python Course Project
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Development tools
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Python Course Project" class="md-nav__button md-logo" aria-label="Python Course Project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Python Course Project
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning platform API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Review branches
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development tools
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workspace tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workspace tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="development-tools">Development tools</h1>
+<p>Run <code>just bootstrap</code> to install the shared <code>dev</code> and <code>docs</code> dependency groups
+from the workspace's <code>pyproject.toml</code>. The testing tools are available in each
+member's isolated test environment and in the integration environment.</p>
+<h2 id="testing">Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Testing type</th>
+<th>Tools</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit / integration</td>
+<td><a href="https://docs.pytest.org/">pytest</a> + <a href="https://www.python-httpx.org/">HTTPX</a> (<code>pytest</code>, <code>httpx</code>)</td>
+<td>Run tests and fixtures; exercise FastAPI through its HTTPX-based <code>TestClient</code>, or use <code>AsyncClient</code> with <code>ASGITransport</code> for async API tests.</td>
+</tr>
+<tr>
+<td>API fuzzing</td>
+<td><a href="https://schemathesis.readthedocs.io/">Schemathesis</a> (<code>schemathesis</code>)</td>
+<td>Generate requests from FastAPI's OpenAPI schema to find server errors, schema violations, and unexpected behavior.</td>
+</tr>
+<tr>
+<td>Edge cases / property testing</td>
+<td><a href="https://hypothesis.readthedocs.io/">Hypothesis</a> (<code>hypothesis</code>)</td>
+<td>Generate inputs and shrink failing examples. Define strategies that express the constraints of your Pydantic models, including custom validation rules.</td>
+</tr>
+<tr>
+<td>Mocking outbound APIs</td>
+<td><a href="https://lundberg.github.io/respx/">RESPX</a> (<code>respx</code>)</td>
+<td>Mock outgoing synchronous and asynchronous HTTPX requests, control responses, and assert calls without contacting external APIs.</td>
+</tr>
+<tr>
+<td>Database integration</td>
+<td><a href="https://testcontainers-python.readthedocs.io/">Testcontainers</a> (<code>testcontainers[postgres,redis]</code>)</td>
+<td>Start real PostgreSQL and Redis containers for tests. Requires Docker; your application's database driver determines whether connections are async.</td>
+</tr>
+<tr>
+<td>Browser end-to-end</td>
+<td><a href="https://playwright.dev/python/">Playwright</a> + <a href="https://playwright.dev/python/docs/test-runners">pytest-playwright</a> (<code>playwright</code>, <code>pytest-playwright</code>)</td>
+<td>Test browser workflows with isolated browser fixtures. Playwright offers sync and async APIs; the included pytest plugin provides sync fixtures and failure video capture.</td>
+</tr>
+</tbody>
+</table>
+<p>The app keeps isolated unit tests in <code>services/app/tests/unit/</code> and PostgreSQL
+integration tests in <code>services/app/tests/integration/</code>. Mock or patch external
+dependencies in unit tests. Both suites mirror directories under <code>src/app/</code>;
+tests for one source file are named <code>test_&lt;filename&gt;.py</code>. Workspace-level
+integration tests belong in the root <code>tests/</code> directory. Run them with:</p>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span><span class="nb">test</span><span class="w"> </span>services/app
+just<span class="w"> </span><span class="nb">test</span><span class="w"> </span>integration
+just<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<p>From <code>services/app/</code>, use <code>uv run --package app pytest tests/unit</code> or
+<code>uv run --package app pytest tests/integration</code> to select one suite.</p>
+<p>For async API tests, use <code>@pytest.mark.anyio</code> with HTTPX's <code>AsyncClient</code> and
+<code>ASGITransport</code>. AnyIO is installed through HTTPX; set the <code>anyio_backend</code>
+fixture to <code>"asyncio"</code> when the application uses asyncio drivers. Manage the
+application's lifespan explicitly when startup or shutdown hooks are required.
+See the <a href="https://fastapi.tiangolo.com/advanced/async-tests/">FastAPI async testing guide</a>.</p>
+<p>Hypothesis does not automatically satisfy every Pydantic constraint or custom
+validator. Use explicit strategies for valid model inputs and separate cases
+that check validation failures.</p>
+<p>The application already includes Hypothesis and Schemathesis fuzz tests in its
+normal member suite. See <a href="../platform/#tests">Learning platform tests</a> for the generated
+properties, temporary-database isolation, larger test budgets, and seed-based
+reproduction commands. <code>HYPOTHESIS_PROFILE=fuzz just test services/app</code> runs the
+service tests with up to 1,000 examples per property.</p>
+<p>To fuzz the running local API at <code>/v1/openapi.json</code>:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>schemathesis<span class="w"> </span>run<span class="w"> </span>http://127.0.0.1:8000/v1/openapi.json
+</code></pre></div>
+<p>Use a disposable test application and database: generated requests can create,
+change, and delete data. Service scaffolds provide <code>/health/live</code> and <code>/health/ready</code>;
+implement and start the application before running this command.</p>
+<p>Testcontainers needs a running Docker daemon locally and in CI. Create and clean
+up containers in fixtures or context managers, and declare your application's
+chosen database driver with a version in the root manifest and an unversioned
+name in the member's dependencies. The PostgreSQL and Redis
+extras are included in the shared dev group. The app's integration fixtures start
+one PostgreSQL container per test session, using <code>services.postgres.image</code> from
+<code>infra/docker-compose.yml</code> as the single source for the database image. They
+create a separate schema for every test and Hypothesis example, apply migrations,
+and remove the schema after use. Unit tests run without Docker.</p>
+<p>For local development, <code>infra/docker-compose.yml</code> provides persistent PostgreSQL
+and Redis services alongside Prometheus and Grafana. Add
+<code>infra/docker-compose.dev.yml</code> to run the API and migrations against that same
+PostgreSQL service. See <code>infra/README.md</code> for startup commands and connection
+settings. Testcontainers fixtures create their own disposable databases and can
+run independently of the development stack.</p>
+<p>When using Colima, start it and point the Docker SDK at its socket before
+running integration tests:</p>
+<div class="highlight"><pre><span></span><code>colima<span class="w"> </span>start
+<span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>docker<span class="w"> </span>context<span class="w"> </span>inspect<span class="w"> </span>colima<span class="w"> </span>--format<span class="w"> </span><span class="s1">'{{.Endpoints.docker.Host}}'</span><span class="k">)</span><span class="s2">"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE</span><span class="o">=</span>/var/run/docker.sock
+just<span class="w"> </span><span class="nb">test</span><span class="w"> </span>services/app
+</code></pre></div>
+<p>Before running browser tests, install Chromium and start the application:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>chromium
+</code></pre></div>
+<p>On Linux CI, use <code>playwright install --with-deps chromium</code> to install browser
+system dependencies too. For async browser fixtures, follow Playwright's
+<a href="https://playwright.dev/python/docs/test-runners#async-fixtures">async fixture setup</a>,
+which requires the additional <code>pytest-playwright-asyncio</code> plugin and loop
+configuration. See <a href="../ci-reports/#browser-failure-videos">Browser failure videos</a>
+for the included sync fixtures' recording and Allure integration.</p>
+<h2 id="workspace-tooling">Workspace tooling</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+<th>Availability / command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>uv</td>
+<td>Manage dependencies, the shared lockfile, and isolated environments.</td>
+<td>Install uv first; <code>just bootstrap</code> runs <code>uv sync</code>. Also declared in <code>dev</code>.</td>
+</tr>
+<tr>
+<td>Just</td>
+<td>Run the workspace's development commands.</td>
+<td>Install with <code>uv tool install rust-just</code>; run <code>just</code> to list recipes.</td>
+</tr>
+<tr>
+<td>Cookiecutter + Jinja2</td>
+<td>Scaffold services and libraries and render the workspace README.</td>
+<td><code>dev</code>; <code>just new-service</code>, <code>just new-lib</code>, <code>just codegen</code>.</td>
+</tr>
+<tr>
+<td>Ruff</td>
+<td>Lint and format Python code.</td>
+<td><code>dev</code>; <code>just lint</code>, <code>just format</code>.</td>
+</tr>
+<tr>
+<td>pytest-cov + coverage.py</td>
+<td>Measure line and branch coverage and produce HTML, JSON, and XML reports per scope.</td>
+<td><code>dev</code>; enabled by <code>just test</code>.</td>
+</tr>
+<tr>
+<td>allure-pytest</td>
+<td>Record test results and attachments for Allure reports.</td>
+<td><code>dev</code>; enabled by <code>just test</code>. CI installs the Allure CLI separately to build reports.</td>
+</tr>
+<tr>
+<td>pre-commit</td>
+<td>Run repository hooks before commits.</td>
+<td><code>dev</code>; enable with <code>uv run pre-commit install</code>.</td>
+</tr>
+<tr>
+<td>MkDocs + Material</td>
+<td>Build and serve the project's documentation.</td>
+<td><code>docs</code>; <code>just docs</code>, <code>just serve</code>.</td>
+</tr>
+<tr>
+<td>Pants</td>
+<td>Infer member dependencies and select affected CI targets.</td>
+<td>Launcher installed separately; configured by <code>pants.toml</code> and member <code>BUILD</code> files.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../ci-reports/">CI reports</a> for report paths, publication, and history.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

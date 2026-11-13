@@ -1,0 +1,736 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Учебная платформа: final Python project with an API under /v1.">
+      
+      
+      
+      
+        <link rel="prev" href="../tools/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>CI reports - Python Course Project</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ci-and-github-pages-reports" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Python Course Project" class="md-header__button md-logo" aria-label="Python Course Project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Python Course Project
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CI reports
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Python Course Project" class="md-nav__button md-logo" aria-label="Python Course Project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Python Course Project
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning platform API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Review branches
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI reports
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-failure-videos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser failure videos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#badge-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Badge setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#published-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Published layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allure-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allure history
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-failure-videos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser failure videos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#badge-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Badge setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#published-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Published layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allure-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allure history
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ci-and-github-pages-reports">CI and GitHub Pages reports</h1>
+<h2 id="checks">Checks</h2>
+<p><code>checks.yml</code> is shared by default-branch and pull-request workflows. It discovers
+<code>services/*/pyproject.toml</code> and <code>libs/*/pyproject.toml</code> for a dynamic job matrix,
+including an independent <code>integration</code> job even when there are no members.
+<code>fail-fast: false</code> lets healthy members finish when another fails collection.
+A separate tooling job checks the generated README and builds documentation.</p>
+<p>Pants owns the dependency graph and CI target selection. Each member scaffold
+includes a <code>BUILD</code> file covering its Python sources, tests, and other files.
+Pants infers first-party dependencies from Python imports. uv continues to own
+package installation and its lockfile; Just runs the existing lint/test commands.
+For runtime relationships that cannot be inferred from imports, add an explicit
+dependency such as <code>libs/common:member</code> to the consumer's <code>python_sources</code> target
+in its <code>BUILD</code> file. Manifest declarations alone do not create Pants graph edges.</p>
+<p>PR discovery runs <code>pants --changed-since=&lt;merge-base&gt; --changed-dependents=transitive list</code>
+and converts its target addresses into unique member paths with <code>jq</code>. Integration
+always runs. Member metadata/assets are dependencies of that member's Python
+targets; shared configuration, lockfiles, and tooling are dependencies of all
+members. Deletions and renames run the full matrix because a removed import may
+no longer have an owner in the current graph. Default-branch publication also
+checks every member, keeping published reports and Allure history complete.</p>
+<p>Install the <a href="https://www.pantsbuild.org/stable/docs/getting-started/installing-pants">Pants launcher</a>
+for local queries; <code>pants.toml</code> pins the engine version. CI installs it in discovery.
+There is no generated dependency graph or dependency regeneration command:</p>
+<div class="highlight"><pre><span></span><code>pants<span class="w"> </span>dependencies<span class="w"> </span>--transitive<span class="w"> </span>services/api:member
+pants<span class="w"> </span>dependents<span class="w"> </span>--transitive<span class="w"> </span>libs/common::
+pants<span class="w"> </span>--changed-since<span class="o">=</span>HEAD<span class="w"> </span>--changed-dependents<span class="o">=</span>transitive<span class="w"> </span>list
+</code></pre></div>
+<p>See <a href="https://www.pantsbuild.org/stable/docs/using-pants/advanced-target-selection">Pants target selection</a>
+for native filters and changed-file options. PRs build Allure reports for selected
+scopes only; unselected members have unavailable results in the combined artifact.</p>
+<p>The same Just commands run locally and in CI:</p>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check<span class="w"> </span>services/api
+just<span class="w"> </span><span class="nb">test</span><span class="w"> </span>libs/common
+just<span class="w"> </span>lint<span class="w"> </span>integration
+just<span class="w"> </span>check
+just<span class="w"> </span>reports
+</code></pre></div>
+<p>Each member's pytest invocation runs from its directory, installs its declared
+workspace/runtime dependencies and shared dev tools into <code>.venvs/&lt;group&gt;/&lt;name&gt;</code>,
+and measures only its own <code>src/</code>. The shared uv lockfile still resolves the whole
+workspace. Separate environments expose imports of unrelated workspace packages;
+they do not prevent access to transitive or tooling dependencies.</p>
+<p>Integration tests use a separate environment with all members installed. Their
+coverage does not contribute to member badges. Empty integration suites are
+allowed; empty member suites fail. Root scripts and integration tests are linted
+under the integration scope, along with the shared root <code>conftest.py</code>. Members
+run their own lint and formatting checks.</p>
+<p>Native Ruff, pytest, coverage, and Allure outputs go directly to each scope's
+report directory. <code>build_reports.py</code> only summarizes those outputs; it neither
+runs checks nor partitions workspace-wide results. Missing results/tool errors
+show unavailable, empty suites show no tests, and skipped suites show skipped.
+Reports are published after failing checks when report generation succeeds;
+the checks keep their failure status. PRs retain artifacts without publishing.</p>
+<h2 id="browser-failure-videos">Browser failure videos</h2>
+<p>Integration, service, and library pytest configurations enable
+<code>--video=retain-on-failure</code>. Tests using pytest-playwright's managed browser
+fixtures record videos; passing-test recordings are discarded. Install the
+browser before running UI tests, for example
+<code>uv run --group dev python -m playwright install chromium</code>. Linux CI also needs
+<code>playwright install --with-deps chromium</code> and the application under test running.
+Tests that do not use a browser do not launch one.</p>
+<p>Raw videos live under <code>reports/&lt;scope&gt;/playwright/&lt;test&gt;/</code>. The root <code>conftest.py</code>
+attaches finalized WebM files to the corresponding failed Allure test, including
+setup or teardown failures when a recording exists. Member pytest configurations
+set <code>--confcutdir=../..</code> to load this shared hook while retaining their own test
+and coverage settings. No per-test attachment code is needed.</p>
+<p>Allure copies attachments into <code>reports/&lt;scope&gt;/allure-results/</code>; the existing
+artifact and Allure report jobs retain them. <code>just test &lt;scope&gt;</code> clears that
+scope's old videos and Allure results before running. Override recording when
+needed with <code>PYTEST_ADDOPTS='--video=off' just test &lt;scope&gt;</code>. Contexts created
+manually outside the pytest-playwright fixtures need their own recording setup.</p>
+<p>This follows the <a href="https://allurereport.org/docs/guides/pytest-playwright-video/">Allure pytest-playwright video guide</a>,
+with attachment after the teardown report so pytest-playwright has finished
+retaining its artifacts. Attachment errors are logged without replacing the
+test's original failure.</p>
+<h2 id="badge-setup">Badge setup</h2>
+<p>GitHub Pages is configured with <strong>GitHub Actions</strong> as its source at
+<a href="https://alexxios.github.io/python-course-project/">https://alexxios.github.io/python-course-project/</a>. The README and scaffold
+templates already use this URL for their badges and report links. The one-time
+setup workflow and binding script were removed after configuration.</p>
+<p>Default-branch CI publishes the documentation and reports. Badges become available
+after the first successful deployment. No custom token or secret is required.</p>
+<p>Future <code>just new-service</code> and <code>just new-lib</code> commands render direct links from
+the bound templates without Git/network access or a saved URL configuration.
+Running Cookiecutter directly on either member template works the same way.
+The setup preserves member prose and updates only standalone Shields lint,
+tests, and coverage badge lines. Normal codegen never rewrites member READMEs.</p>
+<p>After a Pages/domain move, update the plain report URLs and URL-encoded Shields
+endpoints in existing member READMEs, <code>templates/service/*/README.md</code>,
+<code>templates/lib/*/README.md</code>, and <code>templates/readme/header.md.jinja</code>, then run
+<code>just codegen</code>. Shields needs public access to the endpoint JSON.</p>
+<h2 id="published-layout">Published layout</h2>
+<div class="highlight"><pre><span></span><code>/
+├── index.html                         MkDocs documentation
+├── ci-reports/                        This guide
+└── reports/
+    ├── index.html                     Links and status for every scope
+    ├── services/&lt;name&gt;/
+    │   ├── index.html                 Only this service's check results
+    │   ├── badges/{lint,tests,coverage}.json
+    │   ├── coverage/                  Only its source, from its tests
+    │   ├── allure/                    Its Allure report and trends
+    │   ├── allure-results/            Native results and attachments
+    │   ├── playwright/                Retained browser failure videos
+    │   ├── history.jsonl              Published Allure history snapshot
+    │   ├── junit.xml
+    │   ├── coverage.xml, coverage.json
+    │   ├── ruff.json, ruff-format.json
+    │   ├── lint.exit, format.exit, test.exit
+    │   └── summary.json
+    ├── libs/&lt;name&gt;/                   Same layout for each library
+    └── integration/                   Separate integration results
+</code></pre></div>
+<p>Pages deployment uses an Actions artifact; no <code>gh-pages</code> Git branch is needed.
+Coverage pages exist only when data is available. Every badge opens its own
+member's report, which links to its coverage and Allure pages.</p>
+<h2 id="allure-history">Allure history</h2>
+<p>The reporting job restores <code>.allure-history/</code> from a default-branch cache and
+builds an Allure report for each scope using a separate <code>&lt;scope&gt;.jsonl</code> history
+file. It then saves the histories using a unique run/attempt key. Failed test
+runs still enter history. Default-branch workflows are serialized to avoid
+competing history updates. Cache eviction starts new history.</p>
+<p>PRs build Allure reports without restoring or saving history. Each scope's
+artifact is uploaded even if its checks fail; the reporting job collects them
+into <code>check-reports</code> and, on the default branch, the Pages artifact.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
