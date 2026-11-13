@@ -10,8 +10,10 @@ on:
         type: string
         default: ""
     outputs:
-      pages-ready:
-        value: ${{ jobs.reports.outputs.pages-ready }}
+      reports-ready:
+        value: ${{ jobs.reports.outputs.reports-ready }}
+      site-ready:
+        value: ${{ jobs.reports.outputs.site-ready }}
 
 permissions:
   contents: read
@@ -130,7 +132,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
-      pages-ready: ${{ steps.pages.outcome == 'success' }}
+      reports-ready: ${{ steps.allure.outcome == 'success' && steps.artifact.outcome == 'success' }}
+      site-ready: ${{ steps.pages.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -154,25 +157,21 @@ jobs:
           path: reports/
       - name: Restore Allure history
         id: history
-        if: ${{ inputs.publish }}
         uses: actions/cache/restore@v6
         with:
           path: .allure-history/
-          key: allure-history-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: allure-history-${{ github.ref_name }}-
+          key: allure-history-${{ github.base_ref || github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: allure-history-${{ github.base_ref || github.ref_name }}-
       - name: Build each scope's Allure report
+        id: allure
         run: |
           while IFS= read -r member; do
             output="reports/$member"
             mkdir -p "$output/allure-results"
-            args=()
-            if [ "$PUBLISH" = true ]; then
-              history=".allure-history/$member.jsonl"
-              mkdir -p "$(dirname "$history")"
-              args+=(--history-path "$history")
-            fi
+            history=".allure-history/$member.jsonl"
+            mkdir -p "$(dirname "$history")"
             .github/node_modules/.bin/allure awesome "$output/allure-results" \
-              --single-file --output "$output/allure" "${args[@]}"
+              --single-file --name "$member" --output "$output/allure" --history-path "$history"
             if [ "$PUBLISH" = true ]; then cp "$history" "$output/history.jsonl"; fi
           done < <(python -c 'import json, os; print("\n".join(row["path"] for row in json.loads(os.environ["MATRIX"])["include"]))')
         env:
@@ -187,6 +186,7 @@ jobs:
       - name: Build report pages and badges
         run: just reports
       - name: Retain combined reports
+        id: artifact
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
@@ -203,9 +203,11 @@ jobs:
         run: |
           mkdir -p site/reports
           cp -R reports/. site/reports/
-      - name: Upload Pages artifact
+      - name: Retain default-branch site
         id: pages
         if: ${{ inputs.publish }}
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
+          name: default-site
           path: site/
+          if-no-files-found: error

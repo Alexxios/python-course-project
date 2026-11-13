@@ -21,15 +21,10 @@ jobs:
 
   deploy:
     needs: checks
-    if: ${{ !cancelled() && needs.checks.outputs.pages-ready == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    if: ${{ !cancelled() && needs.checks.outputs.site-ready == 'true' }}
+    uses: ./.github/workflows/publish-reports.yml
     permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v5
-        id: deployment
+      actions: read
+      contents: write
+      pull-requests: write
+      checks: write
