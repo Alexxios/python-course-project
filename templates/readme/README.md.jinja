@@ -3,23 +3,135 @@
 
 ## Final project: Учебная платформа
 
-The learning platform is being introduced in focused review branches, starting
-with the database, migrations, health probes, and API v1 application foundation.
-Assignments remain on `ASSIGNMENT-4` and `ASSIGNMENT-6`.
+The learning platform API lives under `/v1`: registration and authentication,
+admin CRUD for courses, lessons and tests, sequential learning, automatic grading,
+personal progress and grade history, and personalized practice. SQLAlchemy and
+Alembic support SQLite for local development and PostgreSQL in Docker Compose.
+The API awaits database and outbound HTTP operations; password hashing runs in
+worker threads. Tests use AnyIO and HTTPX `AsyncClient`.
+See the [Learning platform API guide](docs/platform.md) for the requirements,
+endpoint reference, authentication rules, and optional AI generation.
 
-See the [quickstart](docs/quickstart.md) for local setup and the
-[API guide](docs/platform.md) for the features available in this branch.
+The final project is split into the [review branches `DEV-2` through `DEV-7`](docs/review.md).
+`DEV-7` contains the complete implementation. Earlier solutions remain on
+[`ASSIGNMENT-4`](https://github.com/Alexxios/python-course-project/tree/ASSIGNMENT-4)
+and [`ASSIGNMENT-6`](https://github.com/Alexxios/python-course-project/tree/ASSIGNMENT-6).
+
+## Development
+
+This project contains one FastAPI service, `app`, in `services/app/`.
+Follow the [Developer quickstart](docs/quickstart.md) for setup, local
+infrastructure, a working FastAPI example, and the daily development workflow.
 
 ```bash
+uv tool install rust-just
 just bootstrap
+uv run pre-commit install
 just check
 uv run --package app python -m app init-db
-uv run --package app uvicorn app.main:app --reload
+uv run --package app python -m app create-admin --username admin --first-name Admin --last-name User
+uv run --package app uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Business routers live in `services/app/src/app/routers/v1/`. Tests mirror
-`src/app/`, with a directory per handler and shared fixtures in `conftest.py`.
-The existing uv, Just, Ruff, pytest, coverage, Allure, Hypothesis, and Schemathesis
-tooling is retained. Run `just codegen` after editing this README's template.
-See [development tools](docs/tools.md), [CI reports](docs/ci-reports.md), and
-[local infrastructure](infra/README.md) for the workspace workflow.
+Open <http://127.0.0.1:8000/v1/docs> for the API documentation. Health endpoints are
+`/health/live` and `/health/ready`.
+
+Alternatively, use the Compose files in `infra/`. From the workspace root after
+`just bootstrap`:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d api
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec api \
+  uv run --no-sync python -m app create-admin --username admin --first-name Admin --last-name User
+```
+
+Compose uses the shared PostgreSQL service, applies migrations, then starts the
+API on port 8000. Omit `api` from the startup command to also start Redis,
+Prometheus, and Grafana. See the [quickstart](docs/quickstart.md#docker-compose)
+for configuration and shutdown commands.
+
+Members contain an editable `pyproject.toml`, `src/<package>/`, and `tests/`.
+Services also have a FastAPI `app`, a Dockerfile that starts Uvicorn on port 80,
+and `k8s/` defaults for a Deployment, a ClusterIP Service, and Kustomize. Each service
+README explains image configuration and deployment. Libraries contain Python
+packages without deployment files. Root `tests/` contains integration tests.
+
+Service `main.py` assembles the application and its lifespan; `routers/health.py`
+provides `/health/live` and `/health/ready` for HTTP probes. Readiness returns 503
+when the instance is unavailable. Add business route groups under `routers/v1/`
+and register them in `routers/v1/__init__.py`. Tests mirror `src/app/`, with a
+directory per handler and shared setup in the nearest `conftest.py`.
+
+Use `just new-service <name>` or `just new-lib <name>`, optionally followed by a
+description: `just new-lib common "Shared utilities"`.
+Names must be unique lowercase Python identifiers. Run `just` to list commands.
+Kubernetes names default to package names with underscores replaced by hyphens;
+they must fit in 63 characters and end in a letter or digit. Customize
+`kubernetes_name` in `templates/service/cookiecutter.json` when needed.
+Customize scaffolds in `templates/service/` and `templates/lib/` independently.
+Creation refreshes this README through `templates/readme/README.md.jinja`, which
+includes `header.md.jinja` for the tables. Run `just codegen` after manually
+adding, removing, or renaming members. `just check-generated` checks for drift.
+Member READMEs contain direct Markdown links and remain yours to edit.
+
+`just bootstrap` installs shared dev/docs tools and creates `.env` from
+`.env.example` if missing. `just test`, `just lint`, and `just check` run each
+member independently, then the integration scope. Append a scope to select it,
+such as `just test services/app` or `just check integration`. Each test scope has
+its own environment under `.venvs/` and output under `reports/`. Checks continue across
+members and return failure if any member fails. An empty integration suite is
+allowed; a member without tests fails its test check.
+
+Each member's pytest configuration uses `testpaths = ["tests"]` and coverage of
+its own `src/`. Root pytest configuration covers integration tests only. These
+files stay editable; creating a member does not regenerate them.
+
+Manage runtime versions in the root `pyproject.toml`, where Dependabot maintains
+them. Run `uv add <dependency>` from the repository root, then list the dependency
+name and required extras without a version bound in each member that uses it.
+Members retain these declarations so isolated tests and container builds install
+their runtime requirements. The shared `uv.lock` resolves versions across the
+whole workspace. Shared tooling uses root dependency groups, and the integration
+environment installs all members. Commit manifest changes and `uv.lock` together.
+`just format`, `just docs`, `just serve`, and `just reports` are also available.
+See [Development tools](docs/tools.md) for the testing tools, their purposes,
+and setup requirements.
+See [infra/README.md](infra/README.md) to start PostgreSQL, Redis, Prometheus,
+and Grafana, configure database connections, and add application metrics targets.
+
+## Browser tests
+
+pytest-playwright is included in the shared `dev` group. Before running UI tests,
+install a browser with `uv run --group dev python -m playwright install chromium`
+and start the application under test. Linux CI also needs browser OS dependencies
+(`playwright install --with-deps chromium`). Run tests in the selected scope
+with `just test integration`, `just test services/<name>`, or `just test libs/<name>`.
+Browser failure videos are retained automatically under `reports/<scope>/playwright/`
+and attached to the failed Allure test by the shared root `conftest.py`.
+Passing recordings are discarded. See [the report guide](docs/ci-reports.md#browser-failure-videos)
+for configuration and overrides.
+
+## GitHub setup and reports
+
+Pants infers dependencies from Python imports using each member's `BUILD` file.
+PR CI selects changed members and their transitive dependents, plus integration.
+Shared changes, deletions, and default-branch runs check every member. uv and Just
+continue to install packages and run checks. Declare relationships that cannot be
+inferred from imports explicitly in `BUILD`; no graph regeneration is needed.
+With the [Pants launcher](https://www.pantsbuild.org/stable/docs/getting-started/installing-pants)
+installed, use `pants dependencies --transitive services/app:member` to inspect
+relationships.
+
+Pull requests retain report artifacts. The default branch publishes documentation,
+member coverage, Allure reports/history, and Shields endpoints to GitHub Pages.
+Each member's badges use only that member's check results. Integration coverage
+is reported separately.
+
+GitHub Pages is configured to publish through GitHub Actions at
+<https://alexxios.github.io/python-course-project/>. README badges and member
+templates already point to this site's reports. The first successful default-branch
+workflow publishes them; future members inherit these links from their templates.
+
+Dependabot updates Python dependencies, Actions, pre-commit hooks, Allure, and
+service and infrastructure container images weekly. See [the report guide](docs/ci-reports.md) for
+Pages layout, setup, and history details.

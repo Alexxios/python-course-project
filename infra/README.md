@@ -30,13 +30,49 @@ The PostgreSQL volume mounts at `/var/lib/postgresql`, as required by the
 PostgreSQL's database/user/password settings initialize an empty volume; changing
 them later requires updating the existing database as well.
 
-Stop the stack with:
+Stop the infrastructure-only stack with:
 
 ```bash
 docker compose --env-file .env -f infra/docker-compose.yml down
 ```
 
 Adding `--volumes` also deletes all stored database, Redis, metrics, and Grafana data.
+
+## Application stack
+
+`docker-compose.dev.yml` adds the learning platform API and migration service to
+the infrastructure stack. From the workspace root after `just bootstrap`, run:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d api
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml ps -a
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec api \
+  uv run --no-sync python -m app create-admin --username admin --first-name Admin --last-name User
+```
+
+The API and migration service build `services/app/Dockerfile` with the workspace
+root as the build context. Both connect to the shared `postgres:5432` service,
+whose data uses the existing `postgres-data` volume. Migrations wait for PostgreSQL
+to become healthy; the API starts only after migrations finish successfully. The API listens on
+`127.0.0.1:8000`; set `APP_PORT` in `.env` to change that port.
+
+The final `api` limits startup to the application and its database dependencies.
+Omit it to include Redis, Prometheus, and Grafana in the same stack. Add future
+application services to `docker-compose.dev.yml` as well.
+
+Inspect logs and stop the combined stack with:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml logs api migrate
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml down
+```
+
+Stopping the stack retains its named volumes. The previous root `compose.yml`
+used a separate `learning-platform` project and `learning-postgres-data` volume.
+Existing data in that volume is not imported automatically into this stack's
+`postgres-data` volume. If you used that stack, stop its containers before starting
+this API to free the application port; retain its volume and export/restore the
+database if you need those records.
 
 ## Database connections
 
@@ -49,8 +85,8 @@ and database in connection URLs when changing `.env`.
 Manage the application's chosen database driver versions in the root manifest
 and declare their unversioned names in its member dependencies,
 and configure connections and migrations in the application. PostgreSQL and Redis
-have health checks, so application services can wait for `service_healthy`, as in
-the example below.
+have health checks, so application services can wait for `service_healthy`, as the
+migration service does in `docker-compose.dev.yml`.
 
 For automated tests, Testcontainers fixtures create their own disposable databases
 and return their connection details. Those tests can run independently of this
@@ -73,28 +109,10 @@ docker compose --env-file .env -f infra/docker-compose.yml restart grafana
 
 ## Application metrics
 
-Add Compose entries to `docker-compose.dev.yml` when you create services.
-For example, a service created with `just new-service api` can use:
-
-```yaml
-services:
-  api:
-    build:
-      context: ..
-      dockerfile: services/api/Dockerfile
-    env_file: ../.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-```
-
-The service Dockerfile starts Uvicorn on port 80. Run from the workspace root
-after `just bootstrap` and `uv lock` (commit `uv.lock`):
+Start the application together with the monitoring services:
 
 ```bash
-docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d
 ```
 
 Once the API exposes a Prometheus-format `/metrics` endpoint, append this job

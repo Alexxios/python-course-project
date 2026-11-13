@@ -34,7 +34,11 @@ Hypothesis does not automatically satisfy every Pydantic constraint or custom
 validator. Use explicit strategies for valid model inputs and separate cases
 that check validation failures.
 
-See [Learning platform tests](platform.md#tests) for the test layout and database setup.
+The application already includes Hypothesis and Schemathesis fuzz tests in its
+normal member suite. See [Learning platform tests](platform.md#tests) for the generated
+properties, temporary-database isolation, larger test budgets, and seed-based
+reproduction commands. `HYPOTHESIS_PROFILE=fuzz just test services/app` runs the
+service tests with up to 1,000 examples per property.
 
 To fuzz the running local API at `/v1/openapi.json`:
 
@@ -54,9 +58,11 @@ extras are included in the shared dev group; they do not configure application
 connections or migrations.
 
 For local development, `infra/docker-compose.yml` provides persistent PostgreSQL
-and Redis services alongside Prometheus and Grafana. See `infra/README.md` for
-startup commands and connection settings. Testcontainers fixtures create their
-own disposable databases and can run independently of the development stack.
+and Redis services alongside Prometheus and Grafana. Add
+`infra/docker-compose.dev.yml` to run the API and migrations against that same
+PostgreSQL service. See `infra/README.md` for startup commands and connection
+settings. Testcontainers fixtures create their own disposable databases and can
+run independently of the development stack.
 
 Before running browser tests, install Chromium and start the application:
 

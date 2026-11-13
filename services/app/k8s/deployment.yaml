@@ -19,6 +19,12 @@ spec:
         - name: "app"
           image: app:dev
           imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: learning-platform
+                  key: database-url
           ports:
             - name: http
               containerPort: 80 # Matches Uvicorn's listening port in the Dockerfile.
@@ -41,7 +47,7 @@ spec:
           resources: # Tune scheduling requests and runtime limits for the workload.
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 512Mi
