@@ -1,1 +1,0 @@
-{"uuid": "19611d98-be5b-4039-b08d-2dfe02cb631f", "children": ["804cb829-4ff1-4949-a26f-7f068d3a5e65"], "befores": [{"name": "account_factory", "status": "passed", "start": 1794603105125, "stop": 1794603105125}], "afters": [{"name": "account_factory::<lambda>", "start": 1794603105218}], "start": 1794603105125, "stop": 1794603105218}
