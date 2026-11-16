@@ -1,0 +1,1 @@
+{"uuid": "7a9ea449-54e1-4bfb-89b4-8ac16d0fbe53", "children": ["2afe4387-f151-4116-a61b-26cb0feba0bc"], "befores": [{"name": "anyio_backend", "status": "passed", "start": 1794806636233, "stop": 1794806636233}], "afters": [{"name": "anyio_backend::<lambda>", "start": 1794806636390}], "start": 1794806636233, "stop": 1794806636390}
