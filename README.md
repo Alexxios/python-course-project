@@ -25,9 +25,7 @@ worker threads. Tests use AnyIO and HTTPX `AsyncClient`.
 See the [Learning platform API guide](docs/platform.md) for the requirements,
 endpoint reference, authentication rules, and optional AI generation.
 
-Earlier assignment solutions remain on
-[`ASSIGNMENT-4`](https://github.com/Alexxios/python-course-project/tree/ASSIGNMENT-4)
-and [`ASSIGNMENT-6`](https://github.com/Alexxios/python-course-project/tree/ASSIGNMENT-6).
+Solutions for regular course assignments are in separate branches.
 
 ## Development
 
