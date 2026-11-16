@@ -1,0 +1,1 @@
+{"uuid": "774d9c20-99a4-4c1d-b364-eebcb9bd398c", "children": ["ab9ee67f-8c78-4914-b0c9-a6c76f6edbc8"], "befores": [{"name": "course_factory", "status": "passed", "start": 1794814298200, "stop": 1794814298200}], "afters": [{"name": "course_factory::<lambda>", "start": 1794814298242}], "start": 1794814298200, "stop": 1794814298242}
